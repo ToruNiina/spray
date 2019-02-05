@@ -25,8 +25,8 @@ class texture
     template<template<typename ...> class Ptr>
     texture(const window<Ptr>& win,
             std::uint32_t format, int access, int w, int h)
-        : texture_(std::unique_ptr<backend_type, deleter_type>(
-                    nullptr, &SDL_DestroyTexture))
+        : texture_(spray::util::make_ptr<SmartPtr, SDL_Texture>(
+                   nullptr, &SDL_DestroyTexture))
     {
         auto tex = SDL_CreateTexture(win.backend_renderer_ptr(),
                                      format, access, w, h);
@@ -40,18 +40,7 @@ class texture
                 "Error: SDL_CreateTexture failed.\nError: => {}", SDL_GetError()));
         }
 
-        // XXX: note about the weird implementation
-        // std::shared_ptr::reset and the constructor require the contained type
-        // is a complete type. However, SDL_Texture never be a complete type
-        // (because it is defined in a library and the actual implementation
-        //  might be changed by updating the library). Therefore, we cannot use
-        // SmartPtr::reset() because SmartPtr may be `std::shared_ptr`. To
-        // deal with this problem, first we construct unique_ptr and then move
-        // it to a general SmartPtr. Note that we can assign unique_ptr<T> into
-        // shared_ptr<T>.
-
-        this->texture_ = std::unique_ptr<backend_type, deleter_type>(
-                tex, &SDL_DestroyTexture);
+        this->texture_ = spray::util::make_ptr<SmartPtr>(tex, &SDL_DestroyTexture);
     }
 
     template<typename Pixel>

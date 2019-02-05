@@ -25,27 +25,14 @@ class window
     using renderer_resource_type = spray::util::smart_ptr_t<
         SmartPtr, renderer_backend_type, renderer_deleter_type>;
 
-    // XXX: note about the weird implementation
-    // std::shared_ptr::reset and the constructor require the contained type
-    // is a complete type. However, SDL_Window never be a complete type
-    // (because it is defined in a library and the actual implementation
-    //  might be changed by updating the library). Therefore, we cannot use
-    // SmartPtr::reset() because SmartPtr may be `std::shared_ptr`. To
-    // deal with this problem, first we construct unique_ptr and then move
-    // it to a general SmartPtr. Note that we can assign unique_ptr<T> into
-    // shared_ptr<T>.
-
-    using unique_window_ptr =
-        std::unique_ptr<window_backend_type,   window_deleter_type  >;
-    using unique_renderer_ptr =
-        std::unique_ptr<renderer_backend_type, renderer_deleter_type>;
-
   public:
 
     window(std::string title, std::size_t width, std::size_t height)
         : title_(std::move(title)),
-          window_  (unique_window_ptr  (nullptr, &SDL_DestroyWindow)),
-          renderer_(unique_renderer_ptr(nullptr, &SDL_DestroyRenderer))
+          window_  (spray::util::make_ptr<SmartPtr, SDL_Window>(
+                      nullptr, &SDL_DestroyWindow)),
+          renderer_(spray::util::make_ptr<SmartPtr, SDL_Renderer>(
+                      nullptr, &SDL_DestroyRenderer))
     {
         auto win = SDL_CreateWindow(title.c_str(),
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
@@ -76,9 +63,8 @@ class window
         spray::log(spray::log_level::info,
                    "Renderer for Window \"{}\" created.\n", this->title_);
 
-
-        this->window_   = unique_window_ptr  (win, &SDL_DestroyWindow);
-        this->renderer_ = unique_renderer_ptr(ren, &SDL_DestroyRenderer);
+        this->window_   = spray::util::make_ptr<SmartPtr>(win, &SDL_DestroyWindow);
+        this->renderer_ = spray::util::make_ptr<SmartPtr>(ren, &SDL_DestroyRenderer);
     }
 
     void update()
