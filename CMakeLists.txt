@@ -9,47 +9,35 @@ endif()
 # OpenGL
 find_package(OpenGL REQUIRED)
 if(${OPENGL_FOUND})
-    message(STATUS
-        "OpenGL is found at ${OPENGL_INCLUDE_DIR}, ${OPENGL_LIBRARIES}")
+    message(STATUS "OpenGL is found at ${OPENGL_INCLUDE_DIR}, ${OPENGL_LIBRARIES}")
+else()
+    message(FATAL_ERROR "OpenGL could not be found.")
 endif()
 
 # ----------------------------------------------------------------------------
-# SDL2
-find_package(SDL2 REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-if(${OPENGL_FOUND})
-    message(STATUS "SDL2 is found at ${SDL2_INCLUDE_DIRS}, ${SDL2_LIBRARIES}")
+# glfw3
+
+find_package(PkgConfig REQUIRED)
+pkg_search_module(GLFW REQUIRED glfw3)
+if(${GLFW_FOUND})
+    message(STATUS "glfw3 is found at ${GLFW_INCLUDE_DIRS}, ${GLFW_LIBRARIES}")
+else()
+    message(FATAL_ERROR "glfw3 could not be found.")
 endif()
+include_directories(${GLFW_INCLUDE_DIRS})
 
 # ----------------------------------------------------------------------------
-# gl3w
+# glad
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib/gl3w/include/GL/gl3w.h")
-    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib/gl3w/")
-        execute_process(COMMAND git clone https://github.com/skaslev/gl3w.git
-            WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib")
-    endif()
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib/glad")
+    execute_process(COMMAND git clone https://github.com/Dav1dde/glad.git
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib")
 
-    find_package (Python3 COMPONENTS Interpreter Development)
-    if(Python3_FOUND)
-        execute_process(COMMAND ${Python3_EXECUTABLE} gl3w_gen.py
-            WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib/gl3w")
-    else()
-        find_package (Python2 COMPONENTS Interpreter Development)
-        if(Python2_FOUND)
-            if(${Python2_VERSION_MINOR} LESS 7)
-                message(FATAL_ERROR "python 2.7/3.x not found.")
-            endif()
-            execute_process(COMMAND ${Python2_EXECUTABLE} gl3w_gen.py
-                WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib/gl3w")
-        else()
-            message(FATAL_ERROR "python 2.7/3.x not found.")
-        endif()
-    endif()
+    execute_process(COMMAND python -m glad --profile "core" --api "gl=4.5" --generator "c" --spec "gl" --extensions "" --out-path "."
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib/glad")
 endif()
-
-set(GL3W_SRC "${PROJECT_SOURCE_DIR}/extlib/gl3w/src/gl3w.c")
-include_directories("${PROJECT_SOURCE_DIR}/extlib/gl3w/include")
+include_directories("${PROJECT_SOURCE_DIR}/extlib/glad/include")
+set(GLAD_SRC "${PROJECT_SOURCE_DIR}/extlib/glad/src/glad.c")
 
 # ----------------------------------------------------------------------------
 # imgui
@@ -86,6 +74,17 @@ else()
     add_definitions(-DFMT_HEADER_ONLY)
     include_directories("${PROJECT_SOURCE_DIR}/extlib/fmt/include")
 endif()
+
+# ----------------------------------------------------------------------------
+# Catch2
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib/Catch2")
+    execute_process(COMMAND git clone https://github.com/catchorg/Catch2.git
+                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib")
+    execute_process(COMMAND git checkout -b v2.6.0 refs/tags/v2.6.0
+                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib/Catch2")
+endif()
+include_directories("${PROJECT_SOURCE_DIR}/extlib/Catch2/single_include")
 
 # ----------------------------------------------------------------------------
 # spray
