@@ -45,9 +45,9 @@ struct scope_exit
 template<typename EF>
 auto make_scope_exit(EF&& exit_func)
     noexcept((std::is_nothrow_move_constructible<EF>::value &&
-              std::is_rvalue_reference<EF>::value) ||
+              std::is_rvalue_reference<decltype(exit_func)>::value) ||
              (std::is_nothrow_copy_constructible<EF>::value &&
-              std::is_lvalue_reference<EF>::value))
+              std::is_lvalue_reference<decltype(exit_func)>::value))
 {
     return scope_exit<std::remove_reference_t<EF>>(std::forward<EF>(exit_func));
 }

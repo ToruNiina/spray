@@ -91,9 +91,9 @@ struct unique_resource
 template<typename R, typename D>
 auto make_unique_resource(R&& resource, D&& deleter)
 {
-    static_assert(std::is_rvalue_reference<R>::value,
+    static_assert(std::is_rvalue_reference<decltype(resource)>::value,
         "unique_resource only accepts an r-value reference of a resource");
-    static_assert(std::is_rvalue_reference<D>::value,
+    static_assert(std::is_rvalue_reference<decltype(deleter)>::value,
         "unique_resource only accepts an r-value reference of a deleter");
     using result_type = unique_resource<
         std::remove_reference_t<R>, std::remove_reference_t<D>>;
