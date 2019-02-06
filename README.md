@@ -11,7 +11,7 @@ It currently supports Linux only.
 The following packages are required.
 
 - C++14 compatible compiler
-- OpenGL 3.x or later
+- OpenGL 4.5 or later
 - CMake
 - git
 - wget
@@ -20,11 +20,11 @@ The following packages are required.
 
 spray depends on the following libraries.
 
-- SDL2
-  - most of package managers (like `apt`, `brew`) provides SDL2.
-- imgui
+- glfw3
+  - you can install it package managers (like `apt install libglfw3-dev`).
+- glad
   - will automatically be cloned into `extlib/` by CMake
-- gl3w
+- imgui
   - will automatically be cloned into `extlib/` by CMake
 - fmtlib/fmt
   - will automatically be cloned into `extlib/` by CMake
