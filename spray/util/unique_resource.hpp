@@ -17,14 +17,15 @@ struct unique_resource
 
   public:
 
-    unique_resource(resource_type&& resouce, deleter_type&& deleter,
+    unique_resource(resource_type&& resource, deleter_type&& deleter,
                     bool deletion_needed = true)
         noexcept(std::is_nothrow_move_constructible<resource_type>::value &&
                  std::is_nothrow_move_constructible<deleter_type>::value)
         : resource_(std::move(resource)), deleter_ (std::move(deleter)),
           deletion_needed_(deletion_needed)
     {}
-    ~unique_resource() noexcept(noexcept(this->reset()))
+    ~unique_resource() noexcept(
+        noexcept(std::declval<deleter_type>()(std::declval<resource_type>())))
     {
         this->reset();
     }
@@ -34,7 +35,7 @@ struct unique_resource
                  std::is_nothrow_move_constructible<deleter_type>::value)
         : resource_(std::move(other.resource_)),
           deleter_(std::move(other.deleter_)),
-          deletion_needed_(other.deletion_needed)
+          deletion_needed_(other.deletion_needed_)
     {
         other.release();
     }
@@ -46,7 +47,7 @@ struct unique_resource
         this->reset();
         this->resource_ = std::move(other.resource_);
         this->deleter_  = std::move(other.deleter_);
-        this->deletion_needed_ = other.deletion_needed;
+        this->deletion_needed_ = other.deletion_needed_;
         other.release();
         return *this;
     }
@@ -55,15 +56,16 @@ struct unique_resource
     unique_resource(const unique_resource&) = delete;
     unique_resource& operator=(const unique_resource&) = delete;
 
-    void reset() noexcept(noexcept(this->deleter_(this->resource_)))
+    void reset() noexcept(
+        noexcept(std::declval<deleter_type>()(std::declval<resource_type>())))
     {
         if(deletion_needed_) {this->deleter_(this->resource_);}
         this->deletion_needed_ = false;
     }
 
-    void reset(resource_type&& new_resource)
-        noexcept(noexcept(this->deleter_(this->resource_)) &&
-                 std::is_nothrow_move_assignable<resource_type>::value)
+    void reset(resource_type&& new_resource) noexcept(
+        noexcept(std::declval<deleter_type>()(std::declval<resource_type>())) &&
+        std::is_nothrow_move_assignable<resource_type>::value)
     {
         if(deletion_needed_) {this->deleter_(this->resource_);}
         this->resource_ = std::move(new_resource);
