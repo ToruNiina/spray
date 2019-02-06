@@ -55,10 +55,11 @@ set(IMGUI_SRC
     "${PROJECT_SOURCE_DIR}/extlib/imgui/imgui_demo.cpp"
     "${PROJECT_SOURCE_DIR}/extlib/imgui/imgui_widgets.cpp"
     "${PROJECT_SOURCE_DIR}/extlib/imgui/examples/imgui_impl_opengl3.cpp"
-    "${PROJECT_SOURCE_DIR}/extlib/imgui/examples/imgui_impl_sdl.cpp"
+    "${PROJECT_SOURCE_DIR}/extlib/imgui/examples/imgui_impl_glfw.cpp"
 )
 include_directories("${PROJECT_SOURCE_DIR}/extlib/imgui")
 include_directories("${PROJECT_SOURCE_DIR}/extlib/imgui/examples")
+add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 # ----------------------------------------------------------------------------
 # fmtlib/fmt
