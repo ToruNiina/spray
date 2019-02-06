@@ -2,12 +2,26 @@
 #include <catch2/catch.hpp>
 #include <spray/util/scope_exit.hpp>
 
-TEST_CASE("scope_exit", "[scope_exit]")
+namespace test
+{
+static bool fptr_called = false;
+void fptr() {fptr_called = true;}
+}
+
+TEST_CASE("scope_exit for lambda function", "[scope_exit_lambda]")
 {
     bool called = false;
     {
-        auto make_it_true = [&](){called = true;};
-        const auto scope_exit = spray::util::make_scope_exit(std::move(make_it_true));
+        auto scope_exit = spray::util::make_scope_exit([&](){called = true;});
     }
     REQUIRE(called);
+}
+
+TEST_CASE("scope_exit for function pointer", "[scope_exit_fptr]")
+{
+    test::fptr_called = false;
+    {
+        const auto scope_exit = spray::util::make_scope_exit(&test::fptr);
+    }
+    REQUIRE(test::fptr_called);
 }
