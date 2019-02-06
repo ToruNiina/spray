@@ -1,6 +1,7 @@
 set(TEST_NAMES
     test_scope_exit
     test_unique_resource
+    test_smart_ptr_dispatcher
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
