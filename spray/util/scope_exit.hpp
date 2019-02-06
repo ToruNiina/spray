@@ -18,7 +18,7 @@ struct scope_exit
     explicit scope_exit(EFP&& func)
         noexcept(std::is_nothrow_constructible<EF, EFP>::value ||
                  std::is_nothrow_constructible<EF, EFP&>::value)
-        : func_(std::forward<EFP>(func))
+        : func_(std::forward<EFP>(func)), execute_on_destruction_(true)
     {}
     ~scope_exit() noexcept
     {
@@ -41,6 +41,16 @@ struct scope_exit
      exit_function_type func_;
      bool execute_on_destruction_;
 };
+
+template<typename EF>
+auto make_scope_exit(EF&& exit_func)
+    noexcept((std::is_nothrow_move_constructible<EF>::value &&
+              std::is_rvalue_reference<EF>::value) ||
+             (std::is_nothrow_copy_constructible<EF>::value &&
+              std::is_lvalue_reference<EF>::value))
+{
+    return scope_exit<std::remove_reference_t<EF>>(std::forward<EF>(exit_func));
+}
 
 } // util
 } // spray
