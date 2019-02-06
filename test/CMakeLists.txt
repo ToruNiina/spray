@@ -1,5 +1,6 @@
 set(TEST_NAMES
     test_scope_exit
+    test_unique_resource
     )
 
 foreach(TEST_NAME ${TEST_NAMES})
