@@ -1,6 +1,4 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
+#include <spray/glad/load.hpp>
 #include <spray/glfw/init.hpp>
 #include <spray/glfw/window.hpp>
 
@@ -14,6 +12,10 @@ int main()
     const auto window = spray::glfw::window<std::unique_ptr>(640, 480, "spray");
 
     spray::glfw::make_context_current(window);
+    spray::glfw::swap_interval(1);
+
+    spray::glad::load(glfwGetProcAddress);
+
     while(!spray::glfw::should_close(window))
     {
         glfwPollEvents();
