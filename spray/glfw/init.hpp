@@ -25,6 +25,12 @@ inline auto init()
     return spray::util::make_scope_exit(&glfwTerminate);
 }
 
+inline void swap_interval(int i)
+{
+    glfwSwapInterval(i);
+    return;
+}
+
 } // glfw
 } // spray
 #endif// SPRAY_GLFW_INIT_HPP
