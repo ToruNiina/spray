@@ -28,7 +28,7 @@ struct window
         glfwWindowHint(GLFW_SRGB_CAPABLE,          GL_TRUE);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-        glfwWindowHint(GLFW_OPENGL_PROFILE,        GLFW_OPENGL_CORE_PROFILE);   
+        glfwWindowHint(GLFW_OPENGL_PROFILE,        GLFW_OPENGL_CORE_PROFILE);
         auto win = glfwCreateWindow(w, h, name, nullptr, nullptr);
         if(win == nullptr)
         {
@@ -38,12 +38,6 @@ struct window
         this->resource_ = spray::util::make_ptr<SmartPtr>(win, &glfwDestroyWindow);
     }
 
-    bool should_close() const noexcept
-    {return glfwWindowShouldClose(this->get());}
-
-    void make_context_current() const noexcept
-    {glfwMakeContextCurrent(this->get());}
-
     window_type* get() const noexcept {return resource_.get();}
 
   private:
@@ -51,6 +45,31 @@ struct window
     resource_type resource_;
     std::string name_;
 };
+
+template<template<typename...> class SmartPtr>
+bool should_close(const window<SmartPtr>& win) noexcept
+{
+    return glfwWindowShouldClose(win.get());
+}
+template<template<typename...> class SmartPtr>
+void make_context_current(const window<SmartPtr>& win) noexcept
+{
+    return glfwMakeContextCurrent(win.get());
+}
+template<template<typename...> class SmartPtr>
+std::pair<int, int> get_frame_buffer_size(const window<SmartPtr>& win) noexcept
+{
+    int w, h;
+    glfwGetFramebufferSize(win.get(), std::addressof(w), std::addressof(h));
+    return std::make_pair(w, h);
+}
+template<template<typename...> class SmartPtr>
+std::pair<int, int> size(const window<SmartPtr>& win) noexcept
+{
+    int w, h;
+    glfwGetWindowSize(win.get(), std::addressof(w), std::addressof(h));
+    return std::make_pair(w, h);
+}
 
 } // glfw
 } // spray
