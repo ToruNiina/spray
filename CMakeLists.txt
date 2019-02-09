@@ -7,6 +7,15 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib")
 endif()
 
 # ----------------------------------------------------------------------------
+# CUDA
+find_package(CUDA REQUIRED)
+if(${CUDA_FOUND})
+    message(STATUS "CUDA ${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR} found.")
+else()
+    message(FATAL_ERROR "CUDA could not be found.")
+endif()
+
+# ----------------------------------------------------------------------------
 # OpenGL
 find_package(OpenGL REQUIRED)
 if(${OPENGL_FOUND})
