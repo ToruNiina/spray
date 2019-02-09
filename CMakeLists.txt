@@ -16,6 +16,8 @@ if(${CUDA_FOUND})
 else()
     message(FATAL_ERROR "CUDA could not be found.")
 endif()
+set(CUDA_SEPARABLE_COMPILATION ON)
+cuda_include_directories(${PROJECT_SOURCE_DIR})
 
 # ----------------------------------------------------------------------------
 # OpenGL
