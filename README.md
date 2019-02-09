@@ -11,6 +11,7 @@ It currently supports Linux only.
 The following packages are required.
 
 - C++14 compatible compiler
+- CUDA 9 or later
 - OpenGL 4.5 or later
 - CMake
 - git
@@ -28,6 +29,8 @@ spray depends on the following libraries.
   - will automatically be cloned into `extlib/` by CMake
 - fmtlib/fmt
   - will automatically be cloned into `extlib/` by CMake
+- thrust
+  - will be found `/path/to/cuda/include` after installing cuda
 
 ## Build
 
