@@ -20,7 +20,7 @@ inline float radius(const sphere& sph) noexcept
 __host__ __device__
 inline point center(const sphere& sph) noexcept
 {
-    return point{float4{sph.data.x, sph.data.y, sph.data.z, 0.0f}};
+    return make_point(sph.data.x, sph.data.y, sph.data.z);
 }
 
 } // geom
