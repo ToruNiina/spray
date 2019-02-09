@@ -1,6 +1,13 @@
 #include <spray/glad/load.hpp>
 #include <spray/glfw/init.hpp>
 #include <spray/glfw/window.hpp>
+#include <spray/cuda/buffer_array.hpp>
+#include <spray/cuda/render.hpp>
+
+#include <spray/core/camera.hpp>
+#include <spray/core/world.hpp>
+
+#include <chrono>
 
 #include <imgui.h>
 #include <imgui_impl_sdl.h>
@@ -10,15 +17,55 @@ int main()
 {
     const auto glfw   = spray::glfw::init();
     const auto window = spray::glfw::window<std::unique_ptr>(640, 480, "spray");
-
     spray::glfw::make_context_current(window);
+
+    // load OpenGL function as a function pointer at runtime.
+    // this should be called after creating OpenGL context.
+    spray::glad::load(glfwGetProcAddress);
+
+    // set vsync interval. this should be called after making context
     spray::glfw::swap_interval(1);
 
-    spray::glad::load(glfwGetProcAddress);
+    const auto ini_fbuf_size = spray::glfw::get_frame_buffer_size(window);
+    spray::cuda::buffer_array
+        bufarray(ini_fbuf_size.first, ini_fbuf_size.second);
+
+
+    cudaStream_t stream;
+    spray::cuda::cuda_assert(
+            cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
+
+    spray::core::world          wld;
+    spray::core::pinhole_camera cam(
+        /* loc = */spray::geom::make_point(0.0, 0.0,  0.0),
+        /* dir = */spray::geom::make_point(0.0, 0.0, -1.0),
+        /* vup = */spray::geom::make_point(0.0, 1.0,  0.0),
+        90.0f,
+        640,
+        480
+        );
 
     while(!spray::glfw::should_close(window))
     {
+        const auto start = std::chrono::system_clock::now();
+        const auto size = spray::glfw::get_frame_buffer_size(window);
+
+        const dim3 blocks (size.first / 32, size.second / 32);
+        const dim3 threads(32, 32);
+
+        spray::cuda::render(blocks, threads, stream, cam, wld, bufarray);
+        spray::cuda::blit_framebuffer(bufarray);
+
+        spray::glfw::swap_buffers(window);
+
         glfwPollEvents();
+        const auto stop = std::chrono::system_clock::now();
+        const auto uspf = std::chrono::duration_cast<std::chrono::microseconds>(
+                stop - start).count();
+        const auto fps  = 1.0e6 / uspf;
+
+        fmt::print(fmt::fg(fmt::color::green), "\rInfo:");
+        fmt::print(" {} fps", fps);
     }
     return 0;
 }
