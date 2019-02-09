@@ -57,6 +57,13 @@ void make_context_current(const window<SmartPtr>& win) noexcept
     return glfwMakeContextCurrent(win.get());
 }
 template<template<typename...> class SmartPtr>
+void swap_buffers(const window<SmartPtr>& win) noexcept
+{
+    glfwSwapBuffers(win.get());
+    return;
+}
+
+template<template<typename...> class SmartPtr>
 std::pair<int, int> get_frame_buffer_size(const window<SmartPtr>& win) noexcept
 {
     int w, h;
