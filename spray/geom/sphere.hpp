@@ -1,6 +1,6 @@
 #ifndef SPRAY_GEOM_SPHERE_HPP
 #define SPRAY_GEOM_SPHERE_HPP
-#include <spray/geom/point.cuh>
+#include <spray/geom/point.hpp>
 
 namespace spray
 {

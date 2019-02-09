@@ -1,8 +1,8 @@
 #ifndef SPRAY_GEOM_COLLIDE_HPP
 #define SPRAY_GEOM_COLLIDE_HPP
-#include <spray/geom/point.cuh>
-#include <spray/geom/ray.cuh>
-#include <spray/geom/sphere.cuh>
+#include <spray/geom/point.hpp>
+#include <spray/geom/ray.hpp>
+#include <spray/geom/sphere.hpp>
 
 namespace spray
 {
