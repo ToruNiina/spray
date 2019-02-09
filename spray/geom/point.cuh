@@ -70,6 +70,12 @@ inline point operator*(const point& lhs, const float rhs) noexcept
                       lhs.data.z * rhs, lhs.data.w * rhs);
 }
 __device__ __host__
+inline point operator*(const float& lhs, const point rhs) noexcept
+{
+    return make_point(lhs * rhs.data.x, lhs * rhs.data.y,
+                      lhs * rhs.data.z, lhs * rhs.data.w);
+}
+__device__ __host__
 inline point operator/(const point& lhs, const float rhs) noexcept
 {
     return make_point(lhs.data.x / rhs, lhs.data.y / rhs,
@@ -92,8 +98,8 @@ inline point cross(const point& lhs, const point& rhs) noexcept
 __device__ __host__
 inline float len_sq(const point& lhs) noexcept
 {
-    return lhs.data.x * rhs.data.x + lhs.data.y * rhs.data.y +
-           lhs.data.z * rhs.data.z;
+    return lhs.data.x * lhs.data.x + lhs.data.y * lhs.data.y +
+           lhs.data.z * lhs.data.z;
 }
 __device__ __host__
 inline float len(const point& lhs) noexcept
