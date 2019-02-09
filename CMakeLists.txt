@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 enable_testing()
 project(spray)
 
+set(CMAKE_CXX_STANDARD 14)
+
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib")
     execute_process(COMMAND mkdir extlib WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 endif()
