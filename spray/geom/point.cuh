@@ -33,6 +33,12 @@ __device__ __host__ inline float& Y(point& p) noexcept {return p.data.y;}
 __device__ __host__ inline float& Z(point& p) noexcept {return p.data.z;}
 __device__ __host__ inline float& W(point& p) noexcept {return p.data.w;}
 
+
+__device__ __host__
+inline point operator-(const point& lhs) noexcept
+{
+    return make_point(-lhs.data.x, -lhs.data.y, -lhs.data.z, -lhs.data.w);
+}
 __device__ __host__
 inline point operator+(const point& lhs, const point& rhs) noexcept
 {
@@ -77,14 +83,27 @@ inline float dot(const point& lhs, const point& rhs) noexcept
            lhs.data.z * rhs.data.z + lhs.data.w * rhs.data.w;
 }
 __device__ __host__
+inline point cross(const point& lhs, const point& rhs) noexcept
+{
+    return make_point(lhs.data.y * rhs.data.z - lhs.data.z * rhs.data.y,
+                      lhs.data.z * rhs.data.x - lhs.data.x * rhs.data.z,
+                      lhs.data.x * rhs.data.y - lhs.data.y * rhs.data.x);
+}
+__device__ __host__
 inline float len_sq(const point& lhs) noexcept
 {
-    return dot(lhs, lhs);
+    return lhs.data.x * rhs.data.x + lhs.data.y * rhs.data.y +
+           lhs.data.z * rhs.data.z;
 }
 __device__ __host__
 inline float len(const point& lhs) noexcept
 {
     return sqrt(len_sq(lhs));
+}
+__device__ __host__
+inline point unit(const point& lhs) noexcept
+{
+    return lhs / len(lhs);
 }
 
 } // geom
