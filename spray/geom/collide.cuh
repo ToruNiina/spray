@@ -9,7 +9,7 @@ namespace spray
 namespace geom
 {
 
-__device__ __host__
+SPRAY_HOST_DEVICE
 constexpr inline float inf() noexcept
 {
     return std::numeric_limits<float>::infinity();
@@ -21,7 +21,7 @@ struct collision
     float3 n; // normal vector
 };
 
-__device__ __host__
+SPRAY_HOST_DEVICE
 inline collision collide(const ray&  r, const sphere& sph,
                          const float tmin, const float tmax = inf()) noexcept
 {

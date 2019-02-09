@@ -13,18 +13,18 @@ struct ray
     point dir;
 };
 
-__host__ __device__ inline point const& origin(const ray& r) noexcept {return r.org;}
-__host__ __device__ inline point&       origin(ray& r)       noexcept {return r.org;}
-__host__ __device__ inline point const& direction(const ray& r) noexcept {return r.dir;}
-__host__ __device__ inline point&       direction(ray& r)       noexcept {return r.dir;}
+SPRAY_HOST_DEVICE inline point const& origin(const ray& r) noexcept {return r.org;}
+SPRAY_HOST_DEVICE inline point&       origin(ray& r)       noexcept {return r.org;}
+SPRAY_HOST_DEVICE inline point const& direction(const ray& r) noexcept {return r.dir;}
+SPRAY_HOST_DEVICE inline point&       direction(ray& r)       noexcept {return r.dir;}
 
-__host__ __device__
+SPRAY_HOST_DEVICE
 inline ray make_ray(const point& origin, const point& direction) noexcept
 {
     return ray{origin, direction * (1.0f / length(direction))};
 }
 
-__host__ __device__
+SPRAY_HOST_DEVICE
 inline point ray_at(const ray& r, const float t) noexcept
 {
     return r.org + r.dir * t;

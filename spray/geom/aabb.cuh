@@ -14,13 +14,13 @@ struct aabb
     point upper;
 };
 
-__device__ __host__
+SPRAY_HOST_DEVICE
 inline aabb make_aabb(const point& pt) noexcept
 {
     return aabb{pt, pt}
 }
 
-__device__ __host__
+SPRAY_HOST_DEVICE
 inline aabb make_aabb(const sphere& sph) noexcept
 {
     return aabb{center(sph) - radius(sph), center(sph) + radius(sph)}

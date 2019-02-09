@@ -12,12 +12,12 @@ struct sphere
     float4 data;
 };
 
-__host__ __device__
+SPRAY_HOST_DEVICE
 inline float radius(const sphere& sph) noexcept
 {
     return sph.data.w;
 }
-__host__ __device__
+SPRAY_HOST_DEVICE
 inline point center(const sphere& sph) noexcept
 {
     return make_point(sph.data.x, sph.data.y, sph.data.z);
