@@ -68,10 +68,12 @@ int main()
             {
                 case GLFW_KEY_W    : wp->camera->advance( 0.1f); break;
                 case GLFW_KEY_S    : wp->camera->advance(-0.1f); break;
+                case GLFW_KEY_A    : wp->camera->roll   ( 0.01f); break;
+                case GLFW_KEY_D    : wp->camera->roll   (-0.01f); break;
                 case GLFW_KEY_UP   : wp->camera->pitch  ( 0.01f); break;
                 case GLFW_KEY_DOWN : wp->camera->pitch  (-0.01f); break;
-                case GLFW_KEY_LEFT : wp->camera->yaw    ( 0.01f); break;
-                case GLFW_KEY_RIGHT: wp->camera->yaw    (-0.01f); break;
+                case GLFW_KEY_LEFT : wp->camera->yaw   ( 0.01f); break;
+                case GLFW_KEY_RIGHT: wp->camera->yaw   (-0.01f); break;
             }
             return;
         });
@@ -98,8 +100,17 @@ int main()
 
         {
             ImGui::Begin("camera");
+            const auto loc = cam.location();
+            ImGui::Text("position : %.3f %.3f %.3f", spray::geom::X(loc),
+                        spray::geom::Y(loc), spray::geom::Z(loc));
+
+            const auto dir = cam.direction();
+            ImGui::Text("direction: %.3f %.3f %.3f", spray::geom::X(dir),
+                        spray::geom::Y(dir), spray::geom::Z(dir));
+
+            const auto framerate = ImGui::GetIO().Framerate;
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                        1000.0f / framerate, framerate);
             ImGui::End();
         }
 
