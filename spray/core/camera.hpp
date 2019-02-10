@@ -1,6 +1,5 @@
 #ifndef SPRAY_CORE_CAMERA_HPP
 #define SPRAY_CORE_CAMERA_HPP
-#include <thrust/device_vector.h>
 #include <spray/geom/point.hpp>
 
 namespace spray
@@ -44,12 +43,12 @@ struct pinhole_camera : public camera
         this->vertical_   = (2 * half_height) * v;
     }
 
-    std::size_t width()  const noexcept {return width_;}
-    std::size_t height() const noexcept {return height_;}
-    spray::geom::point location()   const noexcept {return location_;}
-    spray::geom::point lower_left() const noexcept {return lower_left_;}
-    spray::geom::point horizontal() const noexcept {return horizontal_;}
-    spray::geom::point vertical()   const noexcept {return vertical_;}
+    std::size_t width()  const noexcept override {return width_;}
+    std::size_t height() const noexcept override {return height_;}
+    spray::geom::point location()   const noexcept override {return location_;}
+    spray::geom::point lower_left() const noexcept override {return lower_left_;}
+    spray::geom::point horizontal() const noexcept override {return horizontal_;}
+    spray::geom::point vertical()   const noexcept override {return vertical_;}
 
   private:
     float rwidth_;
