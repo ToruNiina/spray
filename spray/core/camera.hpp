@@ -17,7 +17,8 @@ struct camera
     virtual spray::geom::point horizontal() const noexcept = 0;
     virtual spray::geom::point vertical()   const noexcept = 0;
 
-    virtual void move   (spray::geom::point displacement) = 0;
+    virtual void move   (spray::geom::point position) = 0;
+    virtual void look   (spray::geom::point direction) = 0;
     virtual void advance(float dist)  = 0;
     virtual void yaw    (float angle) = 0;
     virtual void pitch  (float angle) = 0;
@@ -76,7 +77,17 @@ struct pinhole_camera final : public camera
     spray::geom::point horizontal() const noexcept override {return horizontal_;}
     spray::geom::point vertical()   const noexcept override {return vertical_;}
 
-    void move (spray::geom::point new_position) override
+    void look(spray::geom::point new_direction) override
+    {
+        this->reset(this->location_,
+                    new_direction,
+                    this->view_up_,
+                    this->field_of_view_,
+                    this->width_,
+                    this->height_);
+    }
+
+    void move(spray::geom::point new_position) override
     {
         this->reset(new_position,
                     this->direction_,
