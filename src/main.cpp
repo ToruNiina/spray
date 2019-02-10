@@ -7,16 +7,24 @@
 #include <spray/core/camera.hpp>
 #include <spray/core/world.hpp>
 
+#include <spray/xyz/xyz.hpp>
+
 #include <chrono>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-int main()
+int main(int argc, char **argv)
 {
+    if(argc != 2)
+    {
+        spray::log(spray::log_level::error, "usage: ./spray filename.xyz");
+        return 1;
+    }
+
     const auto glfw   = spray::glfw::init();
-    auto window = spray::glfw::window<std::unique_ptr>(640, 480, "spray");
+    auto window = spray::glfw::window<std::unique_ptr>(1200, 900, "spray");
     spray::glfw::make_context_current(window);
 
     // load OpenGL function as a function pointer at runtime.
@@ -41,17 +49,30 @@ int main()
         /* dir = */spray::geom::make_point(0.0, 0.0, -1.0),
         /* vup = */spray::geom::make_point(0.0, 1.0,  0.0),
         90.0f,
-        640,
-        480
+        1200,
+        900
         );
 
-    wld.materials.push_back(spray::core::material{spray::core::make_color(1.0, 0.0, 0.0)});
-    wld.materials.push_back(spray::core::material{spray::core::make_color(0.0, 1.0, 0.0)});
-    wld.materials.push_back(spray::core::material{spray::core::make_color(0.0, 0.0, 1.0)});
-    wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point( 0.0f, 0.0f, -1.0f), 0.5f));
-    wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point( 1.0f, 0.0f, -1.0f), 0.5f));
-    wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point(-1.0f, 0.0f, -1.0f), 0.5f));
+   auto xyz_reader = spray::xyz::reader(argv[1]);
+    const auto snapshot   = xyz_reader.read_snapshot(0);
 
+    for(const auto p : snapshot.particles)
+    {
+        if(p.name == "C")
+        {
+            wld.materials.push_back(
+                    spray::core::material{spray::core::make_color(0.5, 0.5, 0.5)});
+            wld.spheres.push_back(spray::geom::make_sphere(
+                    spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.7f));
+        }
+        else if(p.name == "H")
+        {
+            wld.materials.push_back(
+                    spray::core::material{spray::core::make_color(1.0, 1.0, 1.0)});
+            wld.spheres.push_back(spray::geom::make_sphere(
+                    spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f));
+        }
+    }
 
     window.set_camera(std::addressof(cam));
     window.set_world (std::addressof(wld));
