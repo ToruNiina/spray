@@ -129,9 +129,9 @@ rotate(const point& vec, const float angle, const point& axis) noexcept
     const float Q3 = Z(axis) * sin_theta;
 
     const float P0 = 0.0f;
-    const float P1 = X(target);
-    const float P2 = Y(target);
-    const float P3 = Z(target);
+    const float P1 = X(vec);
+    const float P2 = Y(vec);
+    const float P3 = Z(vec);
 
     const float R0 =  Q0;
     const float R1 = -Q1;
