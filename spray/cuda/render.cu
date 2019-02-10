@@ -76,9 +76,9 @@ void render_kernel(const std::size_t width, const std::size_t height,
     uchar4 pixel;
     if(index == 0xFFFFFFFF)
     {
-        pixel.x = 0xFF;
-        pixel.y = 0xFF;
-        pixel.z = 0xFF;
+        pixel.x = 0x00;
+        pixel.y = 0x00;
+        pixel.z = 0x00;
         pixel.w = 0x00;
     }
     else
@@ -103,7 +103,7 @@ void render_impl(const dim3 blocks, const dim3 threads, const cudaStream_t strea
     cuda_assert(cudaBindSurfaceToArray(surf_ref, buf));
 
     thrust::device_vector<spray::core::material> materials_device = materials_host;
-    thrust::device_vector<spray::geom::sphere>   spheres_device = spheres_host;
+    thrust::device_vector<spray::geom::sphere>   spheres_device   = spheres_host;
 
     render_kernel<<<blocks, threads, 0, stream>>>(w, h, 1.0f / w, 1.0f / h,
             loc, lower_left, horizontal, vertical, spheres_device.size(),
