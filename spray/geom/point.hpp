@@ -114,6 +114,43 @@ inline point unit(const point& lhs) noexcept
     return lhs / sqrtf(len_sq(lhs));
 }
 
+SPRAY_HOST_DEVICE
+inline point
+rotate(const point& vec, const float angle, const point& axis) noexcept
+{
+    // this assumes that the axis is already regularized.
+    const float half_angle = angle * 0.5;
+    const float sin_theta  = sinf(half_angle);
+
+    // P, Q, R, S are quaternion.
+    const float Q0 = cosf(half_angle);
+    const float Q1 = X(axis) * sin_theta;
+    const float Q2 = Y(axis) * sin_theta;
+    const float Q3 = Z(axis) * sin_theta;
+
+    const float P0 = 0.0f;
+    const float P1 = X(target);
+    const float P2 = Y(target);
+    const float P3 = Z(target);
+
+    const float R0 =  Q0;
+    const float R1 = -Q1;
+    const float R2 = -Q2;
+    const float R3 = -Q3;
+
+    const float QP0 = Q0 * P0 - Q1 * P1 - Q2 * P2 - Q3 * P3;
+    const float QP1 = Q0 * P1 + Q1 * P0 + Q2 * P3 - Q3 * P2;
+    const float QP2 = Q0 * P2 - Q1 * P3 + Q2 * P0 + Q3 * P1;
+    const float QP3 = Q0 * P3 + Q1 * P2 - Q2 * P1 + Q3 * P0;
+
+//  const float S0 = QP0 * R0 - QP1 * R1 - QP2 * R2 - QP3 * R3;
+    const float S1 = QP0 * R1 + QP1 * R0 + QP2 * R3 - QP3 * R2;
+    const float S2 = QP0 * R2 - QP1 * R3 + QP2 * R0 + QP3 * R1;
+    const float S3 = QP0 * R3 + QP1 * R2 - QP2 * R1 + QP3 * R0;
+
+    return make_point(S1, S2, S3);
+}
+
 } // geom
 } // spray
 #endif// SPRAY_GEOM_POINT_HPP
