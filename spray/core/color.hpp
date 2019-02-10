@@ -1,11 +1,11 @@
-#ifndef SPRAY_GEOM_COLOR_HPP
-#define SPRAY_GEOM_COLOR_HPP
+#ifndef SPRAY_CORE_COLOR_HPP
+#define SPRAY_CORE_COLOR_HPP
 #include <spray/cuda/cuda_macro.hpp>
 #include <vector_types.h>
 
 namespace spray
 {
-namespace geom
+namespace core
 {
 
 // XXX it does not consider alpha blending.
@@ -63,6 +63,6 @@ inline color operator/(const color& lhs, const color& rhs) noexcept
                       lhs.rgba.z / rhs.rgba.z, lhs.rgba.w / rhs.rgba.w);
 }
 
-} // geom
+} // core
 } // spray
-#endif// SPRAY_GEOM_COLOR_HPP
+#endif// SPRAY_CORE_COLOR_HPP
