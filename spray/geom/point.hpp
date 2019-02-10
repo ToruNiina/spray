@@ -2,6 +2,7 @@
 #define SPRAY_GEOM_POINT_HPP
 #include <spray/cuda/cuda_macro.hpp>
 #include <vector_types.h>
+#include <vector_functions.h>
 
 namespace spray
 {
@@ -105,12 +106,12 @@ inline float len_sq(const point& lhs) noexcept
 SPRAY_HOST_DEVICE
 inline float len(const point& lhs) noexcept
 {
-    return sqrt(len_sq(lhs));
+    return sqrtf(len_sq(lhs));
 }
 SPRAY_HOST_DEVICE
 inline point unit(const point& lhs) noexcept
 {
-    return lhs / len(lhs);
+    return lhs / sqrtf(len_sq(lhs));
 }
 
 } // geom
