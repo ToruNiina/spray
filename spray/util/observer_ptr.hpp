@@ -111,8 +111,9 @@ inline bool operator!=(std::nullptr_t, const observer_ptr<T>& p) noexcept
 template<typename T, typename U>
 bool operator<(const observer_ptr<T>& p1, const observer_ptr<U>& p2) noexcept
 {
-    using common_type = std::common_type<
-        observer_ptr<T>::pointer, observer_ptr<U>::pointer>::type;
+    using common_type = typename std::common_type<
+        typename observer_ptr<T>::pointer,
+        typename observer_ptr<U>::pointer>::type;
     return common_type(p1.get()) < common_type(p2.get());
 }
 
