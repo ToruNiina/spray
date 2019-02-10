@@ -109,6 +109,10 @@ int main(int argc, char **argv)
     ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
     ImGui_ImplOpenGL3_Init(/*GLSL version*/"#version 130");
 
+    std::array<float, 3> cam_pos_buf{{0.0f, 0.0f, 0.0f}};
+    std::array<float, 3> cam_dir_buf{{0.0f, 0.0f, 0.0f}};
+    std::array<float, 3> cam_vup_buf{{0.0f, 0.0f, 0.0f}};
+
     while(!spray::glfw::should_close(window))
     {
         const auto start = std::chrono::system_clock::now();
@@ -121,13 +125,28 @@ int main(int argc, char **argv)
 
         {
             ImGui::Begin("camera");
+
             const auto loc = cam.location();
-            ImGui::Text("position : %.3f %.3f %.3f", spray::geom::X(loc),
-                        spray::geom::Y(loc), spray::geom::Z(loc));
+            ImGui::Text("current camera position : %.3f %.3f %.3f",
+                spray::geom::X(loc), spray::geom::Y(loc), spray::geom::Z(loc));
+
+            ImGui::InputFloat3("camera position", cam_pos_buf.data());
+            if(ImGui::Button("apply position"))
+            {
+                cam.move(spray::geom::make_point(
+                         cam_pos_buf[0], cam_pos_buf[1], cam_pos_buf[2]));
+            }
 
             const auto dir = cam.direction();
-            ImGui::Text("direction: %.3f %.3f %.3f", spray::geom::X(dir),
-                        spray::geom::Y(dir), spray::geom::Z(dir));
+            ImGui::Text("current camera direction: %.3f %.3f %.3f",
+                spray::geom::X(dir), spray::geom::Y(dir), spray::geom::Z(dir));
+
+            ImGui::InputFloat3("camera direction", cam_dir_buf.data());
+            if(ImGui::Button("apply direction"))
+            {
+                cam.look(spray::geom::unit(spray::geom::make_point(
+                         cam_dir_buf[0], cam_dir_buf[1], cam_dir_buf[2])));
+            }
 
             const auto framerate = ImGui::GetIO().Framerate;
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
