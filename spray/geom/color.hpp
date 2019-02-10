@@ -43,21 +43,21 @@ inline color operator+(const color& lhs, const color& rhs) noexcept
 }
 
 SPRAY_HOST_DEVICE
-inline color operator-(const color& lhs.rgba, const color& rhs.rgba) noexcept
+inline color operator-(const color& lhs, const color& rhs) noexcept
 {
     return make_color(lhs.rgba.x - rhs.rgba.x, lhs.rgba.y - rhs.rgba.y,
                       lhs.rgba.z - rhs.rgba.z, lhs.rgba.w - rhs.rgba.w);
 }
 
 SPRAY_HOST_DEVICE
-inline color operator*(const color& lhs.rgba, const color& rhs.rgba) noexcept
+inline color operator*(const color& lhs, const color& rhs) noexcept
 {
     return make_color(lhs.rgba.x * rhs.rgba.x, lhs.rgba.y * rhs.rgba.y,
                       lhs.rgba.z * rhs.rgba.z, lhs.rgba.w * rhs.rgba.w);
 }
 
 SPRAY_HOST_DEVICE
-inline color operator/(const color& lhs.rgba, const color& rhs.rgba) noexcept
+inline color operator/(const color& lhs, const color& rhs) noexcept
 {
     return make_color(lhs.rgba.x / rhs.rgba.x, lhs.rgba.y / rhs.rgba.y,
                       lhs.rgba.z / rhs.rgba.z, lhs.rgba.w / rhs.rgba.w);
