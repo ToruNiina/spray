@@ -13,6 +13,12 @@ struct sphere
 };
 
 SPRAY_HOST_DEVICE
+inline sphere make_sphere(const point& center, const float radius) noexcept
+{
+    return sphere{float4{X(center), Y(center), Z(center), radius}};
+}
+
+SPRAY_HOST_DEVICE
 inline float radius(const sphere& sph) noexcept
 {
     return sph.data.w;
