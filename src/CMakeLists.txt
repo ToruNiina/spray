@@ -4,7 +4,7 @@ add_library(glad  STATIC ${GLAD_SRC})
 set(SPRAY_CUDA_SRC
     ${PROJECT_SOURCE_DIR}/spray/cuda/render.cu
 )
-set(CUDA_NVCC_FLAGS "-std=c++14;-O2")
+set(CUDA_NVCC_FLAGS "-std=c++14;-O2;--expt-extended-lambda")
 
 cuda_add_executable(spray main.cpp ${SPRAY_CUDA_SRC})
 set_target_properties(spray PROPERTIES
