@@ -1,13 +1,23 @@
 #ifndef SPRAY_GLFW_WINDOW_HPP
 #define SPRAY_GLFW_WINDOW_HPP
 #include <spray/util/smart_ptr_dispatcher.hpp>
+#include <spray/util/observer_ptr.hpp>
 #include <spray/util/log.hpp>
 #include <GLFW/glfw3.h>
 
 namespace spray
 {
+namespace cuda { struct buffer_array; } // forward declaration
+namespace core { struct camera; struct world;} // ditto
 namespace glfw
 {
+
+struct window_parameter
+{
+    spray::util::observer_ptr<spray::core::camera> camera;
+    spray::util::observer_ptr<spray::core::world>  world;
+    bool is_dragged;
+};
 
 template<template<typename...> class SmartPtr>
 struct window
@@ -35,15 +45,31 @@ struct window
             spray::log(spray::log_level::error, "failed to create glfw window");
             throw std::runtime_error("Error: failed to create glfw window");
         }
+
+        this->params_.camera = nullptr;
+        this->params_.world  = nullptr;
+        this->params_.is_dragged = false;
+        glfwSetWindowUserPointer(win, std::addressof(this->params_));
+
         this->resource_ = spray::util::make_ptr<SmartPtr>(win, &glfwDestroyWindow);
     }
 
     window_type* get() const noexcept {return resource_.get();}
 
+    void set_camera(spray::core::camera* cam)
+    {
+        this->params_.camera.reset(cam);
+    }
+    void set_world(spray::core::world* wld)
+    {
+        this->params_.world.reset(wld);
+    }
+
   private:
 
-    resource_type resource_;
-    std::string name_;
+    resource_type    resource_;
+    window_parameter params_;
+    std::string      name_;
 };
 
 template<template<typename...> class SmartPtr>
@@ -76,6 +102,40 @@ std::pair<int, int> size(const window<SmartPtr>& win) noexcept
     int w, h;
     glfwGetWindowSize(win.get(), std::addressof(w), std::addressof(h));
     return std::make_pair(w, h);
+}
+
+using key_callback          = void (*)(GLFWwindow*, int, int, int, int);
+using mouse_button_callback = void (*)(GLFWwindow*, int, int, int);
+using mouse_pos_callback    = void (*)(GLFWwindow*, double, double);
+using scroll_callback       = void (*)(GLFWwindow*, double, double);
+
+template<template<typename...> class SmartPtr>
+void set_key_callback(
+        const window<SmartPtr>& win, key_callback cb) noexcept
+{
+    glfwSetKeyCallback(win.get(), cb);
+    return;
+}
+template<template<typename...> class SmartPtr>
+void set_mouse_button_callback(
+        const window<SmartPtr>& win, mouse_button_callback cb) noexcept
+{
+    glfwSetMouseButtonCallback(win.get(), cb);
+    return;
+}
+template<template<typename...> class SmartPtr>
+void set_mouse_pos_callback(
+        const window<SmartPtr>& win, mouse_pos_callback cb) noexcept
+{
+    glfwSetCursorPosCallback(win.get(), cb);
+    return;
+}
+template<template<typename...> class SmartPtr>
+void set_scroll_callback(
+        const window<SmartPtr>& win, scroll_callback cb) noexcept
+{
+    glfwSetScrollCallback(win.get(), cb);
+    return;
 }
 
 } // glfw
