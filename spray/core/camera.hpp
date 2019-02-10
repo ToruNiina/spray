@@ -89,7 +89,7 @@ struct pinhole_camera final : public camera
     }
     void yaw  (float angle) override
     {
-        this->reset(this->location_ + displacement,
+        this->reset(this->location_,
                     spray::geom::rotate(this->direction_, -angle, this->view_up_),
                     this->view_up_,
                     this->field_of_view_,
@@ -98,7 +98,7 @@ struct pinhole_camera final : public camera
     }
     void pitch(float angle) override
     {
-        this->reset(this->location_ + displacement,
+        this->reset(this->location_,
                     spray::geom::rotate(this->direction_, angle, this->pitch_axis_),
                     this->view_up_,
                     this->field_of_view_,
@@ -107,7 +107,7 @@ struct pinhole_camera final : public camera
     }
     void roll (float angle) override
     {
-        this->reset(this->location_ + displacement,
+        this->reset(this->location_,
                     this->direction_,
                     spray::geom::rotate(this->view_up_, angle, this->direction_),
                     this->field_of_view_,
