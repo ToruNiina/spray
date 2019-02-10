@@ -12,6 +12,7 @@ struct camera
     virtual std::size_t width()  const noexcept = 0;
     virtual std::size_t height() const noexcept = 0;
     virtual spray::geom::point location()   const noexcept = 0;
+    virtual spray::geom::point direction()  const noexcept = 0;
     virtual spray::geom::point lower_left() const noexcept = 0;
     virtual spray::geom::point horizontal() const noexcept = 0;
     virtual spray::geom::point vertical()   const noexcept = 0;
@@ -70,13 +71,14 @@ struct pinhole_camera final : public camera
     std::size_t width()  const noexcept override {return width_;}
     std::size_t height() const noexcept override {return height_;}
     spray::geom::point location()   const noexcept override {return location_;}
+    spray::geom::point direction()  const noexcept override {return direction_;}
     spray::geom::point lower_left() const noexcept override {return lower_left_;}
     spray::geom::point horizontal() const noexcept override {return horizontal_;}
     spray::geom::point vertical()   const noexcept override {return vertical_;}
 
-    void move (spray::geom::point displacement) override
+    void move (spray::geom::point new_position) override
     {
-        this->reset(this->location_ + displacement,
+        this->reset(new_position,
                     this->direction_,
                     this->view_up_,
                     this->field_of_view_,
@@ -85,7 +87,12 @@ struct pinhole_camera final : public camera
     }
     void advance(float dist) override
     {
-        this->move(dist * this->direction_);
+        this->reset(this->location_ + dist * direction_,
+                    this->direction_,
+                    this->view_up_,
+                    this->field_of_view_,
+                    this->width_,
+                    this->height_);
     }
     void yaw  (float angle) override
     {
