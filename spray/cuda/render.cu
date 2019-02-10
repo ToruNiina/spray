@@ -1,9 +1,9 @@
 #include <spray/cuda/cuda_assert.hpp>
+#include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <spray/geom/sphere.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
-#include <spray/geom/color.hpp>
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/device_ptr.h>
 #include <thrust/device_vector.h>
@@ -28,12 +28,12 @@ float fclampf(float x, float minimum, float maximum)
 }
 
 __device__
-uchar4 make_pixel(spray::geom::color col)
+uchar4 make_pixel(spray::core::color col)
 {
     uchar4 pixel;
-    pixel.x = std::uint8_t(fclampf(sqrtf(spray::geom::R(col)) * 256, 0, 255));
-    pixel.y = std::uint8_t(fclampf(sqrtf(spray::geom::G(col)) * 256, 0, 255));
-    pixel.z = std::uint8_t(fclampf(sqrtf(spray::geom::B(col)) * 256, 0, 255));
+    pixel.x = std::uint8_t(fclampf(sqrtf(spray::core::R(col)) * 256, 0, 255));
+    pixel.y = std::uint8_t(fclampf(sqrtf(spray::core::G(col)) * 256, 0, 255));
+    pixel.z = std::uint8_t(fclampf(sqrtf(spray::core::B(col)) * 256, 0, 255));
     pixel.w = 0xFF;
     return pixel;
 }
@@ -84,7 +84,7 @@ void render_kernel(const std::size_t width, const std::size_t height,
     else
     {
         const spray::core::material mat = material[index];
-        const spray::geom::color color  = mat.albedo;
+        const spray::core::color color  = mat.albedo;
         pixel = make_pixel(color);
     }
     surf2Dwrite(pixel, surf_ref, x * sizeof(uchar4), y, cudaBoundaryModeZero);

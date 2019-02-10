@@ -1,6 +1,6 @@
 #ifndef SPRAY_CORE_MATERIAL_HPP
 #define SPRAY_CORE_MATERIAL_HPP
-#include <spray/geom/color.hpp>
+#include <spray/core/color.hpp>
 
 namespace spray
 {
@@ -9,7 +9,7 @@ namespace core
 
 struct material
 {
-    spray::geom::color albedo;
+    spray::core::color albedo;
 };
 
 } // core

@@ -45,9 +45,9 @@ int main()
         480
         );
 
-    wld.materials.push_back(spray::core::material{spray::geom::make_color(1.0, 0.0, 0.0)});
-    wld.materials.push_back(spray::core::material{spray::geom::make_color(0.0, 1.0, 0.0)});
-    wld.materials.push_back(spray::core::material{spray::geom::make_color(0.0, 0.0, 1.0)});
+    wld.materials.push_back(spray::core::material{spray::core::make_color(1.0, 0.0, 0.0)});
+    wld.materials.push_back(spray::core::material{spray::core::make_color(0.0, 1.0, 0.0)});
+    wld.materials.push_back(spray::core::material{spray::core::make_color(0.0, 0.0, 1.0)});
     wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point( 0.0f, 0.0f, -1.0f), 0.5f));
     wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point( 1.0f, 0.0f, -1.0f), 0.5f));
     wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point(-1.0f, 0.0f, -1.0f), 0.5f));
