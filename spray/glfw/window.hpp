@@ -16,7 +16,8 @@ struct window_parameter
 {
     spray::util::observer_ptr<spray::core::camera> camera;
     spray::util::observer_ptr<spray::core::world>  world;
-    bool is_dragged;
+    bool is_dragged; // true while mouse left button is pressed
+    bool is_focused; // true while no imgui windows are selected
 };
 
 template<template<typename...> class SmartPtr>
@@ -49,6 +50,7 @@ struct window
         this->params_.camera = nullptr;
         this->params_.world  = nullptr;
         this->params_.is_dragged = false;
+        this->params_.is_focused = false;
         glfwSetWindowUserPointer(win, std::addressof(this->params_));
 
         this->resource_ = spray::util::make_ptr<SmartPtr>(win, &glfwDestroyWindow);
@@ -64,6 +66,9 @@ struct window
     {
         this->params_.world.reset(wld);
     }
+
+    void set_is_focused(bool flag) noexcept {this->params_.is_focused = flag;}
+    void set_is_dragged(bool flag) noexcept {this->params_.is_dragged = flag;}
 
   private:
 

@@ -81,10 +81,9 @@ int main(int argc, char **argv)
         [](GLFWwindow* win, int key, int code, int action, int mods) -> void {
             const auto wp = reinterpret_cast<spray::glfw::window_parameter*>(
                     glfwGetWindowUserPointer(win));
-            if(!wp->camera)
-            {
-                return ;
-            }
+            if(!wp->is_focused) {return;}
+            if(!wp->camera)     {return;}
+
             switch(key)
             {
                 case GLFW_KEY_W    : wp->camera->advance( 0.1f); break;
@@ -122,9 +121,9 @@ int main(int argc, char **argv)
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
         {
             ImGui::Begin("camera");
+            window.set_is_focused(!ImGui::IsWindowFocused());
 
             const auto loc = cam.location();
             ImGui::Text("current camera position : %.3f %.3f %.3f",
