@@ -3,6 +3,7 @@ add_library(glad  STATIC ${GLAD_SRC})
 
 set(SPRAY_CUDA_SRC
     ${PROJECT_SOURCE_DIR}/spray/cuda/render.cu
+    ${PROJECT_SOURCE_DIR}/spray/cuda/show_image.cu
 )
 set(CUDA_NVCC_FLAGS "-std=c++14;-O2;--expt-extended-lambda")
 

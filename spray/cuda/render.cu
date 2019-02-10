@@ -1,4 +1,5 @@
 #include <spray/cuda/cuda_assert.hpp>
+#include <spray/cuda/show_image.hpp>
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <spray/geom/sphere.hpp>
@@ -18,8 +19,6 @@ namespace spray
 {
 namespace cuda
 {
-
-surface<void, cudaSurfaceType2D> surf_ref;
 
 __device__
 float fclampf(float x, float minimum, float maximum)
@@ -47,7 +46,8 @@ void render_kernel(const std::size_t width, const std::size_t height,
         const spray::geom::point vertical,
         const std::size_t        N,
         thrust::device_ptr<const spray::core::material> material,
-        thrust::device_ptr<const spray::geom::sphere>   spheres)
+        thrust::device_ptr<const spray::geom::sphere>   spheres,
+        thrust::device_ptr<uchar4> img)
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -87,7 +87,7 @@ void render_kernel(const std::size_t width, const std::size_t height,
         const spray::core::color color  = mat.albedo;
         pixel = make_pixel(color);
     }
-    surf2Dwrite(pixel, surf_ref, x * sizeof(uchar4), y, cudaBoundaryModeZero);
+    img[offset] = pixel;
     return;
 }
 
@@ -100,16 +100,20 @@ void render_impl(const dim3 blocks, const dim3 threads, const cudaStream_t strea
                  const thrust::host_vector<spray::core::material>& materials_host,
                  const thrust::host_vector<spray::geom::sphere>& spheres_host)
 {
-    cuda_assert(cudaBindSurfaceToArray(surf_ref, buf));
-
     thrust::device_vector<spray::core::material> materials_device = materials_host;
     thrust::device_vector<spray::geom::sphere>   spheres_device   = spheres_host;
+    thrust::device_vector<uchar4> img(w * h);
 
     render_kernel<<<blocks, threads, 0, stream>>>(w, h, 1.0f / w, 1.0f / h,
             loc, lower_left, horizontal, vertical, spheres_device.size(),
             thrust::device_pointer_cast(materials_device.data()),
-            thrust::device_pointer_cast(spheres_device.data())
+            thrust::device_pointer_cast(spheres_device.data()),
+            thrust::device_pointer_cast(img.data())
             );
+
+    show_image(blocks, threads, stream, buf, w, h,
+               thrust::device_pointer_cast(img.data()));
+
     return;
 }
 
