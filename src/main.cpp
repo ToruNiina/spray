@@ -16,7 +16,7 @@
 int main()
 {
     const auto glfw   = spray::glfw::init();
-    const auto window = spray::glfw::window<std::unique_ptr>(640, 480, "spray");
+    auto window = spray::glfw::window<std::unique_ptr>(640, 480, "spray");
     spray::glfw::make_context_current(window);
 
     // load OpenGL function as a function pointer at runtime.
@@ -51,6 +51,30 @@ int main()
     wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point( 0.0f, 0.0f, -1.0f), 0.5f));
     wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point( 1.0f, 0.0f, -1.0f), 0.5f));
     wld.spheres.push_back(spray::geom::make_sphere(spray::geom::make_point(-1.0f, 0.0f, -1.0f), 0.5f));
+
+
+    window.set_camera(std::addressof(cam));
+    window.set_world (std::addressof(wld));
+
+    spray::glfw::set_key_callback(window,
+        [](GLFWwindow* win, int key, int code, int action, int mods) -> void {
+            const auto wp = reinterpret_cast<spray::glfw::window_parameter*>(
+                    glfwGetWindowUserPointer(win));
+            if(!wp->camera)
+            {
+                return ;
+            }
+            switch(key)
+            {
+                case GLFW_KEY_W    : wp->camera->advance( 0.1f); break;
+                case GLFW_KEY_S    : wp->camera->advance(-0.1f); break;
+                case GLFW_KEY_UP   : wp->camera->pitch  ( 0.01f); break;
+                case GLFW_KEY_DOWN : wp->camera->pitch  (-0.01f); break;
+                case GLFW_KEY_LEFT : wp->camera->yaw    ( 0.01f); break;
+                case GLFW_KEY_RIGHT: wp->camera->yaw    (-0.01f); break;
+            }
+            return;
+        });
 
     while(!spray::glfw::should_close(window))
     {
