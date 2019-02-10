@@ -10,7 +10,7 @@
 #include <chrono>
 
 #include <imgui.h>
-#include <imgui_impl_sdl.h>
+#include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
 int main()
@@ -76,20 +76,44 @@ int main()
             return;
         });
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
+    ImGui_ImplOpenGL3_Init(/*GLSL version*/"#version 130");
+
     while(!spray::glfw::should_close(window))
     {
         const auto start = std::chrono::system_clock::now();
-        const auto size = spray::glfw::get_frame_buffer_size(window);
 
+        glfwPollEvents();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        {
+            ImGui::Begin("camera");
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                        1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+
+        const auto size = spray::glfw::get_frame_buffer_size(window);
         const dim3 blocks (size.first / 32, size.second / 32);
         const dim3 threads(32, 32);
-
         spray::cuda::render(blocks, threads, stream, cam, wld, bufarray);
         spray::cuda::blit_framebuffer(bufarray);
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         spray::glfw::swap_buffers(window);
 
-        glfwPollEvents();
         const auto stop = std::chrono::system_clock::now();
         const auto uspf = std::chrono::duration_cast<std::chrono::microseconds>(
                 stop - start).count();
