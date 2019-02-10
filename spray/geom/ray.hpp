@@ -21,7 +21,7 @@ SPRAY_HOST_DEVICE inline point&       direction(ray& r)       noexcept {return r
 SPRAY_HOST_DEVICE
 inline ray make_ray(const point& origin, const point& direction) noexcept
 {
-    return ray{origin, direction * (1.0f / length(direction))};
+    return ray{origin, direction * (1.0f / len(direction))};
 }
 
 SPRAY_HOST_DEVICE
