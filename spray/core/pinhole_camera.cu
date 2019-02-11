@@ -2,7 +2,8 @@
 #include <spray/core/render.cuh>
 #include <spray/core/show_image.cuh>
 #include <spray/core/world.cuh>
-/* #include <imgui.h> */
+#include <imgui.h>
+#include <png++/png.hpp>
 
 namespace spray
 {
@@ -73,7 +74,7 @@ void pinhole_camera::reset(spray::geom::point location,
 
 bool pinhole_camera::update_gui()
 {
-/*     ImGui::Begin(this->name_.c_str());
+    ImGui::Begin(this->name_.c_str());
     const bool focused = !(ImGui::IsWindowFocused());
 
     ImGui::InputFloat ("View angle", std::addressof(this->field_of_view_buf_));
@@ -89,14 +90,29 @@ bool pinhole_camera::update_gui()
             this->field_of_view_buf_, this->width_, this->height_);
     }
 
-//        ImGui::InputText("File name", filename_buf_.data(), 256);
-//        if(ImGui::Button("Save image as png"))
-//        {
-//        }
+    ImGui::InputText("File name", filename_buf_.data(), 256);
+    if(ImGui::Button("Save image as png"))
+    {
+        thrust::host_vector<uchar4> pixels = this->scene_;
+        assert(pixels.size() == this->width_ * this->height_);
 
+        png::image<png::rgba_pixel> img(this->width_, this->height_);
+        for(std::size_t y=0; y<this->height_; ++y)
+        {
+            for(std::size_t x=0; x<this->width_; ++x)
+            {
+                const auto pix = pixels[x + y * this->width_];
+                img[y][x] = png::rgba_pixel(pix.x, pix.y, pix.z, pix.w);
+            }
+        }
+        img.write(filename_buf_.data());
+    }
+
+    const auto framerate = ImGui::GetIO().Framerate;
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+                1000.0f / framerate, framerate);
     ImGui::End();
-    return focused; */
-    return false;
+    return focused;
 }
 
 void pinhole_camera::render(
@@ -124,10 +140,6 @@ void pinhole_camera::render(
            thrust::device_pointer_cast(this->scene_.data()));
     return;
 }
-
-
-
-
 
 } // core
 } // spray
