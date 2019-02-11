@@ -76,17 +76,18 @@ class world : public world_base
         return;
     }
 
+    virtual void open_window_for(const std::size_t idx)
+    {
+        std::cout << "clicked " << idx << "-th particle!" << std::endl;
+    }
+
+
     bool is_loaded() const noexcept {return this->is_loaded_;}
 
     void load() const
     {
         device_spheres_   = host_spheres_;
         device_materials_ = host_materials_;
-    }
-
-    std::size_t first_hit_object(std::size_t w, std::size_t h) const
-    {
-        return 0;
     }
 
     thrust::device_vector<sphere_type> const&
@@ -98,8 +99,8 @@ class world : public world_base
   private:
 
     bool is_loaded_;
-    thrust::host_vector<sphere_type>     host_spheres_;
-    thrust::host_vector<material_type>   host_materials_;
+    thrust::host_vector<sphere_type>   host_spheres_;
+    thrust::host_vector<material_type> host_materials_;
     mutable thrust::device_vector<sphere_type>   device_spheres_;
     mutable thrust::device_vector<material_type> device_materials_;
 };

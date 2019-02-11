@@ -57,6 +57,8 @@ void pinhole_camera::reset(spray::geom::point location,
     if(this->scene_.size() != width * height)
     {
         this->scene_.resize(width * height);
+        this->host_first_hit_obj_.resize(width * height);
+        this->device_first_hit_obj_.resize(width * height);
     }
 
     this->field_of_view_buf_ = this->field_of_view_;
@@ -131,8 +133,10 @@ void pinhole_camera::render(
         wld.device_spheres().size(),
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
-        thrust::device_pointer_cast(this->scene_.data())
+        thrust::device_pointer_cast(this->scene_.data()),
+        thrust::device_pointer_cast(this->device_first_hit_obj_.data())
         );
+    this->host_first_hit_obj_ = device_first_hit_obj_;
 
     spray::core::show_image(
            blocks, threads, stream, bufarray.array(), this->width_, this->height_,

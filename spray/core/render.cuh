@@ -22,7 +22,9 @@ void render_kernel(const std::size_t width, const std::size_t height,
         const std::size_t        N,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img);
+        thrust::device_ptr<uchar4> img,
+        thrust::device_ptr<std::uint32_t> first_hit
+        );
 
 
 } // core

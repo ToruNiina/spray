@@ -48,7 +48,8 @@ void render_kernel(const std::size_t width, const std::size_t height,
         const std::size_t        N,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img)
+        thrust::device_ptr<uchar4> img,
+        thrust::device_ptr<std::uint32_t> first_hit_obj)
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -89,6 +90,7 @@ void render_kernel(const std::size_t width, const std::size_t height,
         pixel = make_pixel(color);
     }
     img[offset] = pixel;
+    first_hit_obj[offset] = index;
     return;
 }
 

@@ -104,6 +104,23 @@ int main(int argc, char **argv)
             return;
         });
 
+    spray::glfw::set_mouse_button_callback(window,
+        [](GLFWwindow* win, int button, int action, int mods) -> void {
+            const auto wp = reinterpret_cast<spray::glfw::window_parameter*>(
+                    glfwGetWindowUserPointer(win));
+            if(!wp->camera) {return;}
+            if(!wp->world) {return;}
+
+            if(action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
+            {
+                double w, h;
+                glfwGetCursorPos(win, &w, &h);
+                const auto idx = wp->camera->first_hit_object(w, h);
+                wp->world->open_window_for(idx);
+            }
+            return;
+        });
+
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

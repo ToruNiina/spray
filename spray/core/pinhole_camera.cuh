@@ -45,6 +45,15 @@ struct pinhole_camera final : public camera_base
     spray::geom::point horizontal() const noexcept override {return horizontal_;}
     spray::geom::point vertical()   const noexcept override {return vertical_;}
 
+    std::size_t first_hit_object(std::size_t w, std::size_t h) const
+    {
+        if(this->width_ <= w || this->height_ <= h)
+        {
+            throw std::out_of_range("pinhole_camera::first_hit_object");
+        }
+        return this->host_first_hit_obj_[w + h * this->width_];
+    }
+
     void  focus_dist(float) override {} // do nothing
     float focus_dist() const override {return 0.0;}
 
@@ -147,6 +156,10 @@ struct pinhole_camera final : public camera_base
 
     // scene image
     thrust::device_vector<uchar4> scene_;
+
+    thrust::host_vector<std::uint32_t>   host_first_hit_obj_;
+    thrust::device_vector<std::uint32_t> device_first_hit_obj_;
+
 };
 
 } // core

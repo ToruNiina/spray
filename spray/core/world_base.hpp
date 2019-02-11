@@ -27,8 +27,7 @@ class world_base
     virtual void change_sphere_at  (const std::size_t idx, const sphere_type&) = 0;
     virtual void change_material_at(const std::size_t idx, const material_type&) = 0;
 
-    // get object index corresponds to the pixel index.
-    virtual std::size_t first_hit_object(std::size_t w, std::size_t h) const = 0;
+    virtual void open_window_for(const std::size_t idx) = 0;
 
     virtual bool is_loaded() const noexcept = 0;
     virtual void load() const = 0; // load objects into GPU

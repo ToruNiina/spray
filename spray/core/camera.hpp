@@ -21,6 +21,9 @@ struct camera_base
     virtual spray::geom::point vertical()   const noexcept = 0;
     virtual float focus_dist() const = 0;
 
+    // get object index corresponds to the pixel index.
+    virtual std::size_t first_hit_object(std::size_t w, std::size_t h) const = 0;
+
     virtual void focus_dist(float dist) = 0;
     virtual void resize (std::size_t w, std::size_t h) = 0;
     virtual void move   (spray::geom::point position)  = 0;
