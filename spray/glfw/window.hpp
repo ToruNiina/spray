@@ -118,12 +118,20 @@ using key_callback          = void (*)(GLFWwindow*, int, int, int, int);
 using mouse_button_callback = void (*)(GLFWwindow*, int, int, int);
 using mouse_pos_callback    = void (*)(GLFWwindow*, double, double);
 using scroll_callback       = void (*)(GLFWwindow*, double, double);
+using frame_buffer_size_callback = void (*)(GLFWwindow*, int, int);
 
 template<template<typename...> class SmartPtr>
 void set_key_callback(
         const window<SmartPtr>& win, key_callback cb) noexcept
 {
     glfwSetKeyCallback(win.get(), cb);
+    return;
+}
+template<template<typename...> class SmartPtr>
+void set_frame_buffer_size_callback(
+        const window<SmartPtr>& win, frame_buffer_size_callback cb) noexcept
+{
+    glfwSetFramebufferSizeCallback(win.get(), cb);
     return;
 }
 template<template<typename...> class SmartPtr>
