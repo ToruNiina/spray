@@ -1,5 +1,5 @@
 #include <spray/core/cuda_assert.hpp>
-#include <spray/core/show_image.hpp>
+#include <spray/core/show_image.cuh>
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <spray/core/world.cuh>
@@ -89,34 +89,6 @@ void render_kernel(const std::size_t width, const std::size_t height,
         pixel = make_pixel(color);
     }
     img[offset] = pixel;
-    return;
-}
-
-void render_impl(const dim3 blocks, const dim3 threads, const cudaStream_t stream,
-                 const cudaArray_const_t& buf, std::size_t w, std::size_t h,
-                 const spray::geom::point loc,
-                 const spray::geom::point lower_left,
-                 const spray::geom::point horizontal,
-                 const spray::geom::point vertical,
-                 const spray::core::world_base& wld_base)
-{
-    const auto& wld = dynamic_cast<spray::core::world const&>(wld_base);
-    if(!wld.is_loaded())
-    {
-        wld.load();
-    }
-    thrust::device_vector<uchar4> img(w * h);
-
-    render_kernel<<<blocks, threads, 0, stream>>>(w, h, 1.0f / w, 1.0f / h,
-            loc, lower_left, horizontal, vertical, wld.device_spheres().size(),
-            thrust::device_pointer_cast(wld.device_materials().data()),
-            thrust::device_pointer_cast(wld.device_spheres().data()),
-            thrust::device_pointer_cast(img.data())
-            );
-
-    show_image(blocks, threads, stream, buf, w, h,
-               thrust::device_pointer_cast(img.data()));
-
     return;
 }
 
