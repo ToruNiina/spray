@@ -2,6 +2,7 @@
 #include <spray/cuda/show_image.hpp>
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
+#include <spray/core/world.cuh>
 #include <spray/geom/sphere.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
@@ -97,17 +98,19 @@ void render_impl(const dim3 blocks, const dim3 threads, const cudaStream_t strea
                  const spray::geom::point lower_left,
                  const spray::geom::point horizontal,
                  const spray::geom::point vertical,
-                 const thrust::host_vector<spray::core::material>& materials_host,
-                 const thrust::host_vector<spray::geom::sphere>& spheres_host)
+                 const spray::core::world_base& wld_base)
 {
-    thrust::device_vector<spray::core::material> materials_device = materials_host;
-    thrust::device_vector<spray::geom::sphere>   spheres_device   = spheres_host;
+    const auto& wld = dynamic_cast<spray::core::world const&>(wld_base);
+    if(!wld.is_loaded())
+    {
+        wld.load();
+    }
     thrust::device_vector<uchar4> img(w * h);
 
     render_kernel<<<blocks, threads, 0, stream>>>(w, h, 1.0f / w, 1.0f / h,
-            loc, lower_left, horizontal, vertical, spheres_device.size(),
-            thrust::device_pointer_cast(materials_device.data()),
-            thrust::device_pointer_cast(spheres_device.data()),
+            loc, lower_left, horizontal, vertical, wld.device_spheres().size(),
+            thrust::device_pointer_cast(wld.device_materials().data()),
+            thrust::device_pointer_cast(wld.device_spheres().data()),
             thrust::device_pointer_cast(img.data())
             );
 
