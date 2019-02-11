@@ -86,14 +86,14 @@ int main(int argc, char **argv)
 
             switch(key)
             {
-                case GLFW_KEY_W    : wp->camera->advance( 0.1f); break;
-                case GLFW_KEY_S    : wp->camera->advance(-0.1f); break;
-                case GLFW_KEY_A    : wp->camera->roll   ( 0.01f); break;
-                case GLFW_KEY_D    : wp->camera->roll   (-0.01f); break;
+                case GLFW_KEY_W    : wp->camera->advance( 0.1f);  break;
+                case GLFW_KEY_S    : wp->camera->advance(-0.1f);  break;
+                case GLFW_KEY_A    : wp->camera->lateral(-0.1f);  break;
+                case GLFW_KEY_D    : wp->camera->lateral( 0.1f);  break;
                 case GLFW_KEY_UP   : wp->camera->pitch  ( 0.01f); break;
                 case GLFW_KEY_DOWN : wp->camera->pitch  (-0.01f); break;
-                case GLFW_KEY_LEFT : wp->camera->yaw   ( 0.01f); break;
-                case GLFW_KEY_RIGHT: wp->camera->yaw   (-0.01f); break;
+                case GLFW_KEY_LEFT : wp->camera->yaw    ( 0.01f); break;
+                case GLFW_KEY_RIGHT: wp->camera->yaw    (-0.01f); break;
             }
             return;
         });

@@ -20,6 +20,7 @@ struct camera
     virtual void move   (spray::geom::point position) = 0;
     virtual void look   (spray::geom::point direction) = 0;
     virtual void advance(float dist)  = 0;
+    virtual void lateral(float dist)  = 0;
     virtual void yaw    (float angle) = 0;
     virtual void pitch  (float angle) = 0;
     virtual void roll   (float angle) = 0;
@@ -86,7 +87,6 @@ struct pinhole_camera final : public camera
                     this->width_,
                     this->height_);
     }
-
     void move(spray::geom::point new_position) override
     {
         this->reset(new_position,
@@ -99,6 +99,15 @@ struct pinhole_camera final : public camera
     void advance(float dist) override
     {
         this->reset(this->location_ + dist * direction_,
+                    this->direction_,
+                    this->view_up_,
+                    this->field_of_view_,
+                    this->width_,
+                    this->height_);
+    }
+    void lateral(float dist) override
+    {
+        this->reset(this->location_ + dist * pitch_axis_,
                     this->direction_,
                     this->view_up_,
                     this->field_of_view_,
