@@ -14,8 +14,9 @@ namespace glfw
 
 struct window_parameter
 {
-    spray::util::observer_ptr<spray::core::camera_base> camera;
-    spray::util::observer_ptr<spray::core::world_base>  world;
+    spray::util::observer_ptr<spray::cuda::buffer_array> bufarray;
+    spray::util::observer_ptr<spray::core::camera_base>  camera;
+    spray::util::observer_ptr<spray::core::world_base>   world;
     bool is_dragged; // true while mouse left button is pressed
     bool is_focused; // true while no imgui windows are selected
 };
@@ -65,6 +66,10 @@ struct window
     void set_world(spray::core::world_base* wld)
     {
         this->params_.world.reset(wld);
+    }
+    void set_bufarray(spray::cuda::buffer_array* bufa)
+    {
+        this->params_.bufarray.reset(bufa);
     }
 
     void set_is_focused(bool flag) noexcept {this->params_.is_focused = flag;}
