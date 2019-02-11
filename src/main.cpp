@@ -128,14 +128,6 @@ int main(int argc, char **argv)
         const dim3 blocks (static_cast<int>(std::ceil(double(bufsize.first)  / threads.x)),
                            static_cast<int>(std::ceil(double(bufsize.second) / threads.y)));
 
-        fmt::print("\r32x32 threads for {}x{} blocks = {}x{} threads for {}x{} window "
-                   "(bufsize / threads.x = {}, bufsize / threads.y = {})",
-                   blocks.x, blocks.y, blocks.x * threads.x, blocks.y * threads.y,
-                   bufsize.first, bufsize.second,
-                   double(bufsize.first)  / threads.x,
-                   double(bufsize.second) / threads.y
-                   );
-
         cam->render(blocks, threads, stream, *wld, bufarray);
         spray::core::blit_framebuffer(bufarray);
 
