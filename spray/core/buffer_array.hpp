@@ -23,6 +23,17 @@ struct buffer_array
 
         this->resize(width, height);
     }
+    buffer_array(const std::pair<std::size_t, std::size_t> size)
+        : cuda_graphics_resource_(nullptr), cuda_array_(nullptr)
+    {
+        glCreateFramebuffers (1, std::addressof(this->frame_buffer_));
+        glCreateRenderbuffers(1, std::addressof(this->render_buffer_));
+        glNamedFramebufferRenderbuffer(this->frame_buffer_,
+            GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, this->render_buffer_);
+
+        this->resize(size);
+    }
+
     buffer_array(const buffer_array&)            = delete;
     buffer_array& operator=(const buffer_array&) = delete;
     buffer_array(buffer_array&&)            = default;
@@ -35,6 +46,11 @@ struct buffer_array
         {
             cudaGraphicsUnregisterResource(this->cuda_graphics_resource_);
         }
+    }
+
+    void resize(const std::pair<std::size_t, std::size_t> size)
+    {
+        this->resize(size.first, size.second);
     }
 
     void resize(const std::size_t width, const std::size_t height)
