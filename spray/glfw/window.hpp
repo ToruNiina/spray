@@ -8,13 +8,13 @@
 namespace spray
 {
 namespace cuda { struct buffer_array; } // forward declaration
-namespace core { struct camera; struct world_base;} // ditto
+namespace core { struct camera_base; struct world_base;} // ditto
 namespace glfw
 {
 
 struct window_parameter
 {
-    spray::util::observer_ptr<spray::core::camera> camera;
+    spray::util::observer_ptr<spray::core::camera_base> camera;
     spray::util::observer_ptr<spray::core::world_base>  world;
     bool is_dragged; // true while mouse left button is pressed
     bool is_focused; // true while no imgui windows are selected
@@ -58,7 +58,7 @@ struct window
 
     window_type* get() const noexcept {return resource_.get();}
 
-    void set_camera(spray::core::camera* cam)
+    void set_camera(spray::core::camera_base* cam)
     {
         this->params_.camera.reset(cam);
     }
