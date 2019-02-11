@@ -2,6 +2,7 @@ add_library(imgui STATIC ${IMGUI_SRC})
 add_library(glad  STATIC ${GLAD_SRC})
 
 set(SPRAY_CUDA_SRC
+    ${PROJECT_SOURCE_DIR}/spray/core/world.cu
     ${PROJECT_SOURCE_DIR}/spray/cuda/render.cu
     ${PROJECT_SOURCE_DIR}/spray/cuda/show_image.cu
 )

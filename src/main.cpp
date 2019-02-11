@@ -5,7 +5,7 @@
 #include <spray/cuda/render.hpp>
 
 #include <spray/core/camera.hpp>
-#include <spray/core/world.hpp>
+#include <spray/core/world_base.hpp>
 
 #include <spray/xyz/xyz.hpp>
 
@@ -43,7 +43,8 @@ int main(int argc, char **argv)
     spray::cuda::cuda_assert(
             cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
 
-    spray::core::world          wld;
+    auto wld = spray::core::make_world();
+
     spray::core::pinhole_camera cam(
         /* loc = */spray::geom::make_point(0.0, 0.0,  0.0),
         /* dir = */spray::geom::make_point(0.0, 0.0, -1.0),
@@ -53,29 +54,27 @@ int main(int argc, char **argv)
         900
         );
 
-   auto xyz_reader = spray::xyz::reader(argv[1]);
+    auto xyz_reader = spray::xyz::reader(argv[1]);
     const auto snapshot   = xyz_reader.read_snapshot(0);
 
     for(const auto p : snapshot.particles)
     {
         if(p.name == "C")
         {
-            wld.materials.push_back(
-                    spray::core::material{spray::core::make_color(0.5, 0.5, 0.5)});
-            wld.spheres.push_back(spray::geom::make_sphere(
-                    spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.7f));
+            wld->push_back(spray::geom::make_sphere(
+                spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.7f),
+                spray::core::material{spray::core::make_color(0.5, 0.5, 0.5)});
         }
         else if(p.name == "H")
         {
-            wld.materials.push_back(
-                    spray::core::material{spray::core::make_color(1.0, 1.0, 1.0)});
-            wld.spheres.push_back(spray::geom::make_sphere(
-                    spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f));
+            wld->push_back(spray::geom::make_sphere(
+                spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
+                spray::core::material{spray::core::make_color(1.0, 1.0, 1.0)});
         }
     }
 
     window.set_camera(std::addressof(cam));
-    window.set_world (std::addressof(wld));
+    window.set_world (wld.get());
 
     spray::glfw::set_key_callback(window,
         [](GLFWwindow* win, int key, int code, int action, int mods) -> void {
@@ -156,7 +155,7 @@ int main(int argc, char **argv)
         const auto size = spray::glfw::get_frame_buffer_size(window);
         const dim3 blocks (size.first / 32, size.second / 32);
         const dim3 threads(32, 32);
-        spray::cuda::render(blocks, threads, stream, cam, wld, bufarray);
+        spray::cuda::render(blocks, threads, stream, cam, *wld, bufarray);
         spray::cuda::blit_framebuffer(bufarray);
 
         ImGui::Render();
