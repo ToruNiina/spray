@@ -21,9 +21,9 @@ struct camera_base
     virtual spray::geom::point vertical()   const noexcept = 0;
     virtual float focus_dist() const = 0;
 
-
     virtual void focus_dist(float dist) = 0;
-    virtual void move   (spray::geom::point position) = 0;
+    virtual void resize (std::size_t w, std::size_t h) = 0;
+    virtual void move   (spray::geom::point position)  = 0;
     virtual void look   (spray::geom::point direction) = 0;
     virtual void advance(float dist)  = 0;
     virtual void lateral(float dist)  = 0;

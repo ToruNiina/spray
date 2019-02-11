@@ -49,6 +49,16 @@ struct pinhole_camera final : public camera_base
     void  focus_dist(float) override {} // do nothing
     float focus_dist() const override {return 0.0;}
 
+    void resize(std::size_t w, std::size_t h) override
+    {
+        this->reset(this->location_,
+                    this->direction_,
+                    this->view_up_,
+                    this->field_of_view_,
+                    w, h);
+    }
+
+
     void look(spray::geom::point new_direction) override
     {
         this->reset(this->location_,
