@@ -1,6 +1,6 @@
 #ifndef SPRAY_CUDA_RENDER_BUFFER_ARRAY_HPP
 #define SPRAY_CUDA_RENDER_BUFFER_ARRAY_HPP
-#include <spray/glad/load.hpp>
+#include <glad/glad.h> // use OpenGL functions
 #include <spray/core/cuda_assert.hpp>
 #include <spray/util/scope_exit.hpp>
 #include <cuda_gl_interop.h>
