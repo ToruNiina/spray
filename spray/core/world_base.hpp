@@ -1,5 +1,5 @@
-#ifndef SPRAY_CORE_WORLD_HPP
-#define SPRAY_CORE_WORLD_HPP
+#ifndef SPRAY_CORE_WORLD_BASE_HPP
+#define SPRAY_CORE_WORLD_BASE_HPP
 #include <spray/core/material.hpp>
 #include <spray/geom/sphere.hpp>
 #include <memory>
@@ -41,4 +41,4 @@ std::unique_ptr<world_base> make_world();
 
 } // core
 } // spray
-#endif// SPRAY_CORE_WORLD_HPP
+#endif// SPRAY_CORE_WORLD_BASE_HPP

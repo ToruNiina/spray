@@ -1,3 +1,5 @@
+#ifndef SPRAY_CORE_WORLD_CUH
+#define SPRAY_CORE_WORLD_CUH
 #include <spray/core/world_base.hpp>
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
@@ -104,3 +106,4 @@ class world : public world_base
 
 } // core
 } // spray
+#endif// SPRAY_CORE_WORLD_CUH
