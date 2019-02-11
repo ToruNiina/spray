@@ -1,6 +1,6 @@
 #ifndef SPRAY_GEOM_POINT_HPP
 #define SPRAY_GEOM_POINT_HPP
-#include <spray/cuda/cuda_macro.hpp>
+#include <spray/core/cuda_macro.hpp>
 #include <vector_types.h>
 #include <vector_functions.h>
 

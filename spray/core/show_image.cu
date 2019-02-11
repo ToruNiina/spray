@@ -1,4 +1,4 @@
-#include <spray/cuda/cuda_assert.hpp>
+#include <spray/core/cuda_assert.hpp>
 #include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
 

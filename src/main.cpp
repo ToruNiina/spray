@@ -1,8 +1,8 @@
 #include <spray/glad/load.hpp>
 #include <spray/glfw/init.hpp>
 #include <spray/glfw/window.hpp>
-#include <spray/cuda/buffer_array.hpp>
-#include <spray/cuda/render.hpp>
+#include <spray/core/buffer_array.hpp>
+#include <spray/core/render.hpp>
 
 #include <spray/core/camera.hpp>
 #include <spray/core/world_base.hpp>

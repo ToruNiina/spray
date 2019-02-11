@@ -1,5 +1,5 @@
-#include <spray/cuda/cuda_assert.hpp>
-#include <spray/cuda/show_image.hpp>
+#include <spray/core/cuda_assert.hpp>
+#include <spray/core/show_image.hpp>
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <spray/core/world.cuh>

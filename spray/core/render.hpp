@@ -2,7 +2,7 @@
 #define SPRAY_CUDA_RENDER_HPP
 #include <spray/core/world_base.hpp>
 #include <spray/core/camera.hpp>
-#include <spray/cuda/buffer_array.hpp>
+#include <spray/core/buffer_array.hpp>
 
 namespace spray
 {
