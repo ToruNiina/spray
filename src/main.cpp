@@ -2,7 +2,6 @@
 #include <spray/glfw/init.hpp>
 #include <spray/glfw/window.hpp>
 #include <spray/core/buffer_array.hpp>
-#include <spray/core/render.hpp>
 
 #include <spray/core/camera.hpp>
 #include <spray/core/world_base.hpp>
@@ -24,7 +23,7 @@ int main(int argc, char **argv)
     }
 
     const auto glfw   = spray::glfw::init();
-    auto window = spray::glfw::window<std::unique_ptr>(1200, 900, "spray");
+    auto window = spray::glfw::window<std::unique_ptr>(1024, 512, "spray");
     spray::glfw::make_context_current(window);
 
     // load OpenGL function as a function pointer at runtime.
@@ -34,10 +33,7 @@ int main(int argc, char **argv)
     // set vsync interval. this should be called after making context
     spray::glfw::swap_interval(1);
 
-    const auto ini_fbuf_size = spray::glfw::get_frame_buffer_size(window);
-    spray::cuda::buffer_array
-        bufarray(ini_fbuf_size.first, ini_fbuf_size.second);
-
+    spray::cuda::buffer_array bufarray(spray::glfw::get_frame_buffer_size(window));
 
     cudaStream_t stream;
     spray::cuda::cuda_assert(
@@ -45,18 +41,16 @@ int main(int argc, char **argv)
 
     auto wld = spray::core::make_world();
 
-    spray::core::pinhole_camera cam(
-        /* loc = */spray::geom::make_point(0.0, 0.0,  0.0),
-        /* dir = */spray::geom::make_point(0.0, 0.0, -1.0),
-        /* vup = */spray::geom::make_point(0.0, 1.0,  0.0),
-        90.0f,
-        1200,
-        900
-        );
+    auto bufsize = spray::glfw::get_frame_buffer_size(window);
+    auto cam = spray::core::make_pinhole_camera(
+            "default pinhole camera",
+            /* loc = */spray::geom::make_point(0.0, 0.0,  0.0),
+            /* dir = */spray::geom::make_point(0.0, 0.0, -1.0),
+            /* vup = */spray::geom::make_point(0.0, 1.0,  0.0),
+            90.0f, bufsize.first, bufsize.second);
 
     auto xyz_reader = spray::xyz::reader(argv[1]);
-    const auto snapshot   = xyz_reader.read_snapshot(0);
-
+    const auto snapshot = xyz_reader.read_snapshot(0);
     for(const auto p : snapshot.particles)
     {
         if(p.name == "C")
@@ -73,8 +67,9 @@ int main(int argc, char **argv)
         }
     }
 
-    window.set_camera(std::addressof(cam));
+    window.set_camera(cam.get());
     window.set_world (wld.get());
+    window.set_bufarray(std::addressof(bufarray));
 
     spray::glfw::set_key_callback(window,
         [](GLFWwindow* win, int key, int code, int action, int mods) -> void {
@@ -97,79 +92,61 @@ int main(int argc, char **argv)
             return;
         });
 
+    spray::glfw::set_frame_buffer_size_callback(window,
+        [](GLFWwindow* win, int w, int h) -> void {
+            const auto wp = reinterpret_cast<spray::glfw::window_parameter*>(
+                    glfwGetWindowUserPointer(win));
+            if(!wp->bufarray) {return;}
+            if(!wp->camera) {return;}
+
+            wp->bufarray->resize(w, h);
+            wp->camera->resize(w, h);
+            return;
+        });
+
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
     ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
     ImGui_ImplOpenGL3_Init(/*GLSL version*/"#version 130");
 
-    std::array<float, 3> cam_pos_buf{{0.0f, 0.0f, 0.0f}};
-    std::array<float, 3> cam_dir_buf{{0.0f, 0.0f, 0.0f}};
-    std::array<float, 3> cam_vup_buf{{0.0f, 0.0f, 0.0f}};
-
     while(!spray::glfw::should_close(window))
     {
-        const auto start = std::chrono::system_clock::now();
-
         glfwPollEvents();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        {
-            ImGui::Begin("camera");
-            window.set_is_focused(!ImGui::IsWindowFocused());
 
-            const auto loc = cam.location();
-            ImGui::Text("current camera position : %.3f %.3f %.3f",
-                spray::geom::X(loc), spray::geom::Y(loc), spray::geom::Z(loc));
+        bufsize = spray::glfw::get_frame_buffer_size(window);
 
-            ImGui::InputFloat3("camera position", cam_pos_buf.data());
-            if(ImGui::Button("apply position"))
-            {
-                cam.move(spray::geom::make_point(
-                         cam_pos_buf[0], cam_pos_buf[1], cam_pos_buf[2]));
-            }
-
-            const auto dir = cam.direction();
-            ImGui::Text("current camera direction: %.3f %.3f %.3f",
-                spray::geom::X(dir), spray::geom::Y(dir), spray::geom::Z(dir));
-
-            ImGui::InputFloat3("camera direction", cam_dir_buf.data());
-            if(ImGui::Button("apply direction"))
-            {
-                cam.look(spray::geom::unit(spray::geom::make_point(
-                         cam_dir_buf[0], cam_dir_buf[1], cam_dir_buf[2])));
-            }
-
-            const auto framerate = ImGui::GetIO().Framerate;
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
-                        1000.0f / framerate, framerate);
-            ImGui::End();
-        }
-
-        const auto size = spray::glfw::get_frame_buffer_size(window);
-        const dim3 blocks (size.first / 32, size.second / 32);
         const dim3 threads(32, 32);
-        spray::cuda::render(blocks, threads, stream, cam, *wld, bufarray);
+        const dim3 blocks (static_cast<int>(std::ceil(double(bufsize.first)  / threads.x)),
+                           static_cast<int>(std::ceil(double(bufsize.second) / threads.y)));
+
+        fmt::print("\r32x32 threads for {}x{} blocks = {}x{} threads for {}x{} window "
+                   "(bufsize / threads.x = {}, bufsize / threads.y = {})",
+                   blocks.x, blocks.y, blocks.x * threads.x, blocks.y * threads.y,
+                   bufsize.first, bufsize.second,
+                   double(bufsize.first)  / threads.x,
+                   double(bufsize.second) / threads.y
+                   );
+
+        cam->render(blocks, threads, stream, *wld, bufarray);
         spray::cuda::blit_framebuffer(bufarray);
+
+        const bool cam_subwin_focused = cam->update_gui();
+        window.set_is_focused(cam_subwin_focused);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         spray::glfw::swap_buffers(window);
 
-        const auto stop = std::chrono::system_clock::now();
-        const auto uspf = std::chrono::duration_cast<std::chrono::microseconds>(
-                stop - start).count();
-        const auto fps  = 1.0e6 / uspf;
-
-        fmt::print(fmt::fg(fmt::color::green), "\rInfo:");
-        fmt::print(" {} fps", fps);
     }
     return 0;
 }

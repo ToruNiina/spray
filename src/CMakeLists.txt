@@ -4,6 +4,7 @@ add_library(glad  STATIC ${GLAD_SRC})
 set(SPRAY_CUDA_SRC
     ${PROJECT_SOURCE_DIR}/spray/core/world.cu
     ${PROJECT_SOURCE_DIR}/spray/core/render.cu
+    ${PROJECT_SOURCE_DIR}/spray/core/pinhole_camera.cu
     ${PROJECT_SOURCE_DIR}/spray/core/show_image.cu
 )
 set(CUDA_NVCC_FLAGS "-std=c++14;-O2;--expt-extended-lambda")
@@ -17,5 +18,6 @@ target_link_libraries(spray
     glad
     ${GLFW_LIBRARIES}
     ${OPENGL_LIBRARIES}
+    ${LIBPNG_LIBRARIES}
     dl
 )

@@ -91,6 +91,20 @@ else()
 endif()
 
 # ----------------------------------------------------------------------------
+# libpng
+include (FindPkgConfig)
+if (NOT PKG_CONFIG_FOUND)
+    message (FATAL_ERROR "pkg-config not found")
+endif ()
+pkg_check_modules(LIBPNG libpng12 REQUIRED)
+if (NOT LIBPNG_FOUND)
+    message(FATAL_ERROR "libpng-v1.2 not found")
+else ()
+    include_directories(${LIBPNG_INCLUDE_DIRS})
+    link_directories   (${LIBPNG_LIBRARY_DIRS})
+endif ()
+
+# ----------------------------------------------------------------------------
 # Catch2
 
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/extlib/Catch2")
