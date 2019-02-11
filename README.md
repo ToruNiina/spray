@@ -13,7 +13,7 @@ The following packages are required.
 - C++14 compatible compiler
 - CUDA 9 or later
 - OpenGL 4.5 or later
-- CMake
+- [CMake](https://cmake.org/)
 - git
 - wget
 
@@ -21,16 +21,19 @@ The following packages are required.
 
 spray depends on the following libraries.
 
-- glfw3
-  - you can install it package managers (like `apt install libglfw3-dev`).
-- glad
-  - will automatically be cloned into `extlib/` by CMake
-- imgui
-  - will automatically be cloned into `extlib/` by CMake
-- fmtlib/fmt
-  - will automatically be cloned into `extlib/` by CMake
-- thrust
-  - will be found `/path/to/cuda/include` after installing cuda
+- [png++](https://www.nongnu.org/pngpp/)
+  - You can install it using your distribution's package manager (like `apt install libpng++-dev`).
+  - It depends on libpng v1.2. If you manually install it, you might need to install `libpng12-dev` also.
+- [glfw3](https://www.glfw.org/)
+  - you can install it using your distribution's package manager (like `apt install libglfw3-dev`).
+- [glad](https://glad.dav1d.de/)
+  - will automatically be cloned into `extlib/` by CMake.
+- [imgui](https://github.com/ocornut/imgui)
+  - will automatically be cloned into `extlib/` by CMake.
+- [fmtlib/fmt](http://fmtlib.net/latest/index.html)
+  - will automatically be cloned into `extlib/` by CMake.
+- [thrust](https://thrust.github.io/)
+  - will be found `/path/to/cuda/include` after installing cuda.
 
 ## Build
 
