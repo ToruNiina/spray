@@ -14,11 +14,10 @@ void show_image_kernel(const std::size_t width, const std::size_t height,
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
-    const std::size_t offset = x + y * blockDim.x * gridDim.x;
-    if(offset >= width * height)
-    {
-        return;
-    }
+    if(x >= width)  {return;}
+    if(y >= height) {return;}
+    const std::size_t offset = x + y * width;
+
     const uchar4 pixel = image[offset];
     surf2Dwrite(pixel, surf_ref, x * sizeof(uchar4), y, cudaBoundaryModeZero);
     return;
