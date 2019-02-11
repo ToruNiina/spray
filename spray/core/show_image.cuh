@@ -1,12 +1,12 @@
-#ifndef SPRAY_CUDA_SHOW_IMAGE_HPP
-#define SPRAY_CUDA_SHOW_IMAGE_HPP
+#ifndef SPRAY_CORE_SHOW_IMAGE_CUH
+#define SPRAY_CORE_SHOW_IMAGE_CUH
 #include <thrust/host_vector.h>
 #include <thrust/device_ptr.h>
 #include <vector_types.h>
 
 namespace spray
 {
-namespace cuda
+namespace core
 {
 
 void show_image(const dim3 blocks, const dim3 threads,
@@ -19,6 +19,6 @@ void load_image(const dim3 blocks, const dim3 threads,
         const std::size_t  width,  const std::size_t height,
         const thrust::host_vector<uchar4>& image);
 
-} // cuda
+} // core
 } // spray
-#endif // SPRAY_CUDA_SHOW_IMAGE_HPP
+#endif // SPRAY_CORE_SHOW_IMAGE_CUH

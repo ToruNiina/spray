@@ -4,7 +4,7 @@
 
 namespace spray
 {
-namespace cuda
+namespace core
 {
 surface<void, cudaSurfaceType2D> surf_ref;
 
@@ -46,5 +46,5 @@ void load_image(const dim3 blocks, const dim3 threads,
 
 
 
-} // cuda
+} // core
 } // spray

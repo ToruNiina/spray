@@ -33,7 +33,7 @@ struct camera_base
 
     virtual bool update_gui() = 0; // returns true if the window is focused
     virtual void render(const dim3 block, const dim3 thread, const cudaStream_t,
-        const spray::core::world_base&, const spray::cuda::buffer_array&) = 0;
+        const spray::core::world_base&, const buffer_array&) = 0;
 };
 
 std::unique_ptr<camera_base> make_pinhole_camera(

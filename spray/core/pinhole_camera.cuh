@@ -34,8 +34,7 @@ struct pinhole_camera final : public camera_base
     bool update_gui() override;
 
     void render(const dim3 blocks, const dim3 threads, const cudaStream_t stream,
-            const spray::core::world_base& wld_base,
-            const spray::cuda::buffer_array& bufarray) override;
+            const world_base& wld_base, const buffer_array& bufarray) override;
 
     std::string const& name() const noexcept {return this->name_;}
     std::size_t width()  const noexcept override {return width_;}

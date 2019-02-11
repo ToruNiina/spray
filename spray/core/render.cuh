@@ -1,5 +1,5 @@
-#ifndef SPRAY_CUDA_RENDER_HPP
-#define SPRAY_CUDA_RENDER_HPP
+#ifndef SPRAY_CORE_RENDER_CUH
+#define SPRAY_CORE_RENDER_CUH
 #include <spray/geom/point.hpp>
 #include <spray/geom/sphere.hpp>
 #include <spray/core/buffer_array.hpp>
@@ -9,7 +9,7 @@
 
 namespace spray
 {
-namespace cuda
+namespace core
 {
 
 __global__
@@ -25,6 +25,6 @@ void render_kernel(const std::size_t width, const std::size_t height,
         thrust::device_ptr<uchar4> img);
 
 
-} // cuda
+} // core
 } // spray
-#endif// SPRAY_CUDA_RENDER_HPP
+#endif// SPRAY_CORE_RENDER_CUH

@@ -6,7 +6,7 @@
 
 namespace spray
 {
-namespace cuda
+namespace core
 {
 
 inline void cuda_assert(cudaError_t err)
@@ -22,6 +22,6 @@ inline void cuda_assert(cudaError_t err)
     return;
 }
 
-} // cuda
+} // core
 } // spray
 #endif// SPRAY_CUDA_CUDA_ASSERT_HPP

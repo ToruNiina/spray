@@ -1,5 +1,5 @@
-#ifndef SPRAY_CUDA_RENDER_BUFFER_ARRAY_HPP
-#define SPRAY_CUDA_RENDER_BUFFER_ARRAY_HPP
+#ifndef SPRAY_CORE_RENDER_BUFFER_ARRAY_HPP
+#define SPRAY_CORE_RENDER_BUFFER_ARRAY_HPP
 #include <glad/glad.h> // use OpenGL functions
 #include <spray/core/cuda_assert.hpp>
 #include <spray/util/scope_exit.hpp>
@@ -8,7 +8,7 @@
 
 namespace spray
 {
-namespace cuda
+namespace core
 {
 
 struct buffer_array
@@ -61,7 +61,7 @@ struct buffer_array
         // cleanup current resource
         if(this->cuda_graphics_resource_ != nullptr)
         {
-            cuda::cuda_assert(cudaGraphicsUnregisterResource(
+            cuda_assert(cudaGraphicsUnregisterResource(
                         this->cuda_graphics_resource_));
         }
 
@@ -69,24 +69,24 @@ struct buffer_array
         glNamedRenderbufferStorage(this->render_buffer_, GL_RGBA8, width, height);
 
         // make cuda Array to map the render buffer and edit it from cuda
-        cuda::cuda_assert(cudaGraphicsGLRegisterImage(
+        cuda_assert(cudaGraphicsGLRegisterImage(
             std::addressof(this->cuda_graphics_resource_),
             this->render_buffer_, GL_RENDERBUFFER,
             cudaGraphicsRegisterFlagsSurfaceLoadStore |
             cudaGraphicsRegisterFlagsWriteDiscard));
 
         // lock graphics resource from OpenGL
-        cuda::cuda_assert(cudaGraphicsMapResources(
+        cuda_assert(cudaGraphicsMapResources(
             1, std::addressof(this->cuda_graphics_resource_), 0));
 
         // unlock it when exit from this scope.
         const auto force_unlock = spray::util::make_scope_exit([this]() -> void {
-                cuda::cuda_assert(cudaGraphicsUnmapResources(
+                cuda_assert(cudaGraphicsUnmapResources(
                     1, std::addressof(this->cuda_graphics_resource_), 0));
             });
 
         // bind graphics resource to cudaArray_t
-        cuda::cuda_assert(cudaGraphicsSubResourceGetMappedArray(
+        cuda_assert(cudaGraphicsSubResourceGetMappedArray(
             std::addressof(this->cuda_array_), this->cuda_graphics_resource_,
             0, 0));
 
@@ -114,7 +114,7 @@ struct buffer_array
 
 // XXX consider a more appropreate namespace. buffer_array is used for cuda,
 //     but this function itself does not execute cuda stuff.
-inline void blit_framebuffer(const cuda::buffer_array& bufarray)
+inline void blit_framebuffer(const buffer_array& bufarray)
 {
     const int w = bufarray.width();
     const int h = bufarray.height();
@@ -127,6 +127,6 @@ inline void blit_framebuffer(const cuda::buffer_array& bufarray)
     return;
 }
 
-} // cuda
+} // core
 } // spray
-#endif// SPRAY_CUDA_RENDER_BUFFER_ARRAY_HPP
+#endif// SPRAY_CORE_RENDER_BUFFER_ARRAY_HPP

@@ -117,8 +117,7 @@ bool pinhole_camera::update_gui()
 
 void pinhole_camera::render(
         const dim3 blocks, const dim3 threads, const cudaStream_t stream,
-        const spray::core::world_base& wld_base,
-        const spray::cuda::buffer_array& bufarray)
+        const world_base& wld_base, const buffer_array& bufarray)
 {
     const auto& wld = dynamic_cast<spray::core::world const&>(wld_base);
     if(!wld.is_loaded())
@@ -126,7 +125,7 @@ void pinhole_camera::render(
         wld.load();
     }
 
-    spray::cuda::render_kernel<<<blocks, threads, 0, stream>>>(
+    spray::core::render_kernel<<<blocks, threads, 0, stream>>>(
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->location_, this->lower_left_, this->horizontal_, this->vertical_,
         wld.device_spheres().size(),
@@ -135,7 +134,7 @@ void pinhole_camera::render(
         thrust::device_pointer_cast(this->scene_.data())
         );
 
-    spray::cuda::show_image(
+    spray::core::show_image(
            blocks, threads, stream, bufarray.array(), this->width_, this->height_,
            thrust::device_pointer_cast(this->scene_.data()));
     return;

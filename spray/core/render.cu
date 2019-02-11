@@ -18,7 +18,7 @@
 
 namespace spray
 {
-namespace cuda
+namespace core
 {
 
 __device__
@@ -92,5 +92,5 @@ void render_kernel(const std::size_t width, const std::size_t height,
     return;
 }
 
-} // cuda
+} // core
 } // spray

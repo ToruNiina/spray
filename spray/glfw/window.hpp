@@ -7,14 +7,21 @@
 
 namespace spray
 {
-namespace cuda { struct buffer_array; } // forward declaration
-namespace core { struct camera_base; struct world_base;} // ditto
+
+namespace core
+{
+// forward declarations to contain pointer in window
+struct camera_base;
+struct world_base;
+struct buffer_array;
+} // core
+
 namespace glfw
 {
 
 struct window_parameter
 {
-    spray::util::observer_ptr<spray::cuda::buffer_array> bufarray;
+    spray::util::observer_ptr<spray::core::buffer_array> bufarray;
     spray::util::observer_ptr<spray::core::camera_base>  camera;
     spray::util::observer_ptr<spray::core::world_base>   world;
     bool is_dragged; // true while mouse left button is pressed
@@ -67,7 +74,7 @@ struct window
     {
         this->params_.world.reset(wld);
     }
-    void set_bufarray(spray::cuda::buffer_array* bufa)
+    void set_bufarray(spray::core::buffer_array* bufa)
     {
         this->params_.bufarray.reset(bufa);
     }

@@ -33,10 +33,10 @@ int main(int argc, char **argv)
     // set vsync interval. this should be called after making context
     spray::glfw::swap_interval(1);
 
-    spray::cuda::buffer_array bufarray(spray::glfw::get_frame_buffer_size(window));
+    spray::core::buffer_array bufarray(spray::glfw::get_frame_buffer_size(window));
 
     cudaStream_t stream;
-    spray::cuda::cuda_assert(
+    spray::core::cuda_assert(
             cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
 
     auto wld = spray::core::make_world();
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
                    );
 
         cam->render(blocks, threads, stream, *wld, bufarray);
-        spray::cuda::blit_framebuffer(bufarray);
+        spray::core::blit_framebuffer(bufarray);
 
         const bool cam_subwin_focused = cam->update_gui();
         window.set_is_focused(cam_subwin_focused);

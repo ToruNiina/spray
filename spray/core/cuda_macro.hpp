@@ -1,5 +1,5 @@
-#ifndef SPRAY_CUDA_MACRO_HPP
-#define SPRAY_CUDA_MACRO_HPP
+#ifndef SPRAY_CORE_CUDA_MACRO_HPP
+#define SPRAY_CORE_CUDA_MACRO_HPP
 
 #if defined(__CUDACC__) && defined(__NVCC__)
 #  define SPRAY_HOST        __host__
@@ -13,4 +13,4 @@
 #  define SPRAY_GLOBAL
 #endif
 
-#endif// SPRAY_CUDA_MACRO_HPP
+#endif// SPRAY_CORE_CUDA_MACRO_HPP
