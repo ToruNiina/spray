@@ -3,7 +3,7 @@
 #include <spray/glfw/window.hpp>
 #include <spray/core/buffer_array.hpp>
 
-#include <spray/core/camera.hpp>
+#include <spray/core/camera_base.hpp>
 #include <spray/core/world_base.hpp>
 
 #include <spray/xyz/xyz.hpp>

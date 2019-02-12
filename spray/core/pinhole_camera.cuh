@@ -1,6 +1,6 @@
 #ifndef SPRAY_CORE_PINHOLE_CAMERA_CUH
 #define SPRAY_CORE_PINHOLE_CAMERA_CUH
-#include <spray/core/camera.hpp>
+#include <spray/core/camera_base.hpp>
 #include <spray/core/world_base.hpp>
 #include <thrust/device_vector.h>
 
