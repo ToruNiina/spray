@@ -77,7 +77,7 @@ void pinhole_camera::reset(spray::geom::point location,
 bool pinhole_camera::update_gui()
 {
     ImGui::Begin(this->name_.c_str());
-    const bool focused = !(ImGui::IsWindowFocused());
+    const bool focused = ImGui::IsWindowFocused();
 
     ImGui::InputFloat ("View angle", std::addressof(this->field_of_view_buf_));
     ImGui::InputFloat3("Camera position",  pos_buf_.data());

@@ -110,12 +110,14 @@ int main(int argc, char **argv)
                     glfwGetWindowUserPointer(win));
             if(!wp->camera) {return;}
             if(!wp->world) {return;}
+            if(ImGui::IsMouseHoveringAnyWindow()) {return;}
 
             if(action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT)
             {
                 double w, h;
                 glfwGetCursorPos(win, &w, &h);
                 const auto idx = wp->camera->first_hit_object(w, h);
+                if(idx == 0xFFFFFFFF){return;}
                 wp->world->open_window_for(idx);
             }
             return;
@@ -124,7 +126,6 @@ int main(int argc, char **argv)
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
 
     ImGui::StyleColorsDark();
 
@@ -149,8 +150,11 @@ int main(int argc, char **argv)
         spray::core::blit_framebuffer(bufarray);
 
         bool is_focused = false;
-        is_focused = is_focused || cam->update_gui();
-        window.set_is_focused(is_focused);
+        is_focused = cam->update_gui() || is_focused;
+        is_focused = wld->update_gui() || is_focused;
+
+        // root window is focused if none of the sub-windows are focused on.
+        window.set_is_focused(!is_focused);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
