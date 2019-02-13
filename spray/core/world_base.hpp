@@ -28,6 +28,7 @@ class world_base
     virtual void change_material_at(const std::size_t idx, const material_type&) = 0;
 
     virtual void open_window_for(const std::size_t idx) = 0;
+    virtual bool update_gui() = 0;
 
     virtual bool is_loaded() const noexcept = 0;
     virtual void load() const = 0; // load objects into GPU

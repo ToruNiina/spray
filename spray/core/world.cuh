@@ -3,6 +3,7 @@
 #include <spray/core/world_base.hpp>
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <vector>
 #include <string>
 
 namespace spray
@@ -65,6 +66,7 @@ class world : public world_base
         }
         is_loaded_ = false;
         host_materials_[idx] = new_material;
+        material_buffer_.at(idx) = host_materials_[idx];
         return;
     }
 
@@ -73,14 +75,20 @@ class world : public world_base
         is_loaded_ = false;
         host_spheres_.push_back(sph);
         host_materials_.push_back(mat);
+        material_buffer_.push_back(mat);
         return;
     }
 
-    virtual void open_window_for(const std::size_t idx)
-    {
-        std::cout << "clicked " << idx << "-th particle!" << std::endl;
-    }
+    bool update_gui();
 
+    void open_window_for(const std::size_t idx)
+    {
+        for(const auto already_opened : this->sub_windows_)
+        {
+            if(already_opened == idx) {return;}
+        }
+        sub_windows_.push_back(idx);
+    }
 
     bool is_loaded() const noexcept {return this->is_loaded_;}
 
@@ -99,6 +107,8 @@ class world : public world_base
   private:
 
     bool is_loaded_;
+    std::vector<std::size_t>   sub_windows_;
+    std::vector<material_type> material_buffer_;
     thrust::host_vector<sphere_type>   host_spheres_;
     thrust::host_vector<material_type> host_materials_;
     mutable thrust::device_vector<sphere_type>   device_spheres_;
