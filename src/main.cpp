@@ -148,8 +148,9 @@ int main(int argc, char **argv)
         cam->render(blocks, threads, stream, *wld, bufarray);
         spray::core::blit_framebuffer(bufarray);
 
-        const bool cam_subwin_focused = cam->update_gui();
-        window.set_is_focused(cam_subwin_focused);
+        bool is_focused = false;
+        is_focused = is_focused || cam->update_gui();
+        window.set_is_focused(is_focused);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
