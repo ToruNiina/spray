@@ -63,6 +63,22 @@ inline color operator/(const color& lhs, const color& rhs) noexcept
                       lhs.rgba.z / rhs.rgba.z, lhs.rgba.w / rhs.rgba.w);
 }
 
+SPRAY_HOST_DEVICE
+inline color operator*(const float lhs, const color& rhs) noexcept
+{
+    return make_color(lhs * rhs.rgba.x, lhs * rhs.rgba.y,
+                      lhs * rhs.rgba.z, lhs * rhs.rgba.w);
+}
+
+SPRAY_HOST_DEVICE
+inline color operator*(const color& lhs, const float rhs) noexcept
+{
+    return make_color(lhs.rgba.x * rhs, lhs.rgba.y * rhs,
+                      lhs.rgba.z * rhs, lhs.rgba.w * rhs);
+}
+
+
+
 } // core
 } // spray
 #endif// SPRAY_CORE_COLOR_HPP
