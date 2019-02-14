@@ -86,7 +86,9 @@ void render_kernel(const std::size_t width, const std::size_t height,
     else
     {
         const spray::core::material mat = material[index];
-        const spray::core::color color  = mat.albedo;
+        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
+                spray::geom::direction(ray), spray::geom::normal(col)));
+
         pixel = make_pixel(color);
     }
     img[offset] = pixel;
