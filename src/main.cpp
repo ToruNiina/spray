@@ -116,6 +116,10 @@ int main(int argc, char **argv)
             {
                 double w, h;
                 glfwGetCursorPos(win, &w, &h);
+                if(w >= wp->camera->width() || h >= wp->camera->height())
+                {
+                    return;
+                }
                 const auto idx = wp->camera->first_hit_object(w, h);
                 if(idx == 0xFFFFFFFF){return;}
                 wp->world->open_window_for(idx);
