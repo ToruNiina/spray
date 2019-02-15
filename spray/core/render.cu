@@ -1,19 +1,13 @@
 #include <spray/core/cuda_assert.hpp>
 #include <spray/core/show_image.cuh>
-#include <spray/core/color.hpp>
+#include <spray/core/color.cuh>
 #include <spray/core/material.hpp>
 #include <spray/core/world.cuh>
 #include <spray/geom/sphere.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
-#include <spray/util/cuda_util.cuh>
-#include <thrust/iterator/counting_iterator.h>
 #include <thrust/device_ptr.h>
 #include <thrust/device_vector.h>
-#include <thrust/transform.h>
-#include <thrust/sort.h>
-#include <thrust/pair.h>
-
 #include <vector_types.h>
 #include <vector_functions.h>
 
@@ -21,17 +15,6 @@ namespace spray
 {
 namespace core
 {
-
-__device__
-uchar4 make_pixel(spray::core::color col)
-{
-    uchar4 pixel;
-    pixel.x = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::R(col)) * 256, 0, 255));
-    pixel.y = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::G(col)) * 256, 0, 255));
-    pixel.z = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::B(col)) * 256, 0, 255));
-    pixel.w = 0xFF;
-    return pixel;
-}
 
 __global__
 void render_kernel(const std::size_t width, const std::size_t height,
