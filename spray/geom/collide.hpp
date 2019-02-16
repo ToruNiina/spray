@@ -31,6 +31,13 @@ struct collision
     float3 n; // normal vector
 };
 
+SPRAY_HOST_DEVICE
+inline point normal(const collision& c) noexcept
+{
+    return make_point(c.n.x, c.n.y, c.n.z);
+}
+
+
 SPRAY_DEVICE
 inline collision collide(const ray&  r, const sphere& sph,
                          const float t_min, const float t_max = inf()) noexcept

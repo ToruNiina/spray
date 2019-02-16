@@ -1,18 +1,13 @@
 #include <spray/core/cuda_assert.hpp>
 #include <spray/core/show_image.cuh>
-#include <spray/core/color.hpp>
+#include <spray/core/color.cuh>
 #include <spray/core/material.hpp>
 #include <spray/core/world.cuh>
 #include <spray/geom/sphere.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
-#include <thrust/iterator/counting_iterator.h>
 #include <thrust/device_ptr.h>
 #include <thrust/device_vector.h>
-#include <thrust/transform.h>
-#include <thrust/sort.h>
-#include <thrust/pair.h>
-
 #include <vector_types.h>
 #include <vector_functions.h>
 
@@ -20,23 +15,6 @@ namespace spray
 {
 namespace core
 {
-
-__device__
-float fclampf(float x, float minimum, float maximum)
-{
-    return fminf(fmaxf(x, minimum), maximum);
-}
-
-__device__
-uchar4 make_pixel(spray::core::color col)
-{
-    uchar4 pixel;
-    pixel.x = std::uint8_t(fclampf(sqrtf(spray::core::R(col)) * 256, 0, 255));
-    pixel.y = std::uint8_t(fclampf(sqrtf(spray::core::G(col)) * 256, 0, 255));
-    pixel.z = std::uint8_t(fclampf(sqrtf(spray::core::B(col)) * 256, 0, 255));
-    pixel.w = 0xFF;
-    return pixel;
-}
 
 __global__
 void render_kernel(const std::size_t width, const std::size_t height,
@@ -53,9 +31,8 @@ void render_kernel(const std::size_t width, const std::size_t height,
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
+    if(x >= width || y >= height) {return;}
 
-    if(x >= width)  {return;}
-    if(y >= height) {return;}
     const std::size_t offset = x + y * width;
 
     const spray::geom::point dst = lower_left +
@@ -86,7 +63,9 @@ void render_kernel(const std::size_t width, const std::size_t height,
     else
     {
         const spray::core::material mat = material[index];
-        const spray::core::color color  = mat.albedo;
+        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
+                spray::geom::direction(ray), spray::geom::normal(col)));
+
         pixel = make_pixel(color);
     }
     img[offset] = pixel;

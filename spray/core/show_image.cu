@@ -14,8 +14,7 @@ void show_image_kernel(const std::size_t width, const std::size_t height,
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
-    if(x >= width)  {return;}
-    if(y >= height) {return;}
+    if(x >= width || y >= height) {return;}
     const std::size_t offset = x + y * width;
 
     const uchar4 pixel = image[offset];
