@@ -1,8 +1,7 @@
 #ifndef SPRAY_UTIL_LOG_HPP
 #define SPRAY_UTIL_LOG_HPP
-#include <fmt/format.h>
-#include <fmt/color.h>
 #include <map>
+#include <iostream>
 #include <cstdint>
 
 namespace spray
@@ -38,37 +37,47 @@ struct logger
 template<typename Level>
 std::map<Level, bool> logger<Level>::filter;
 
+inline void log_output(std::ostream& os) noexcept
+{
+    return;
+}
+template<typename Arg, typename ... Args>
+inline void log_output(std::ostream& os, const Arg& arg, const Args& ... args)
+{
+    os << arg;
+    log_output(os, args...);
+    return;
+}
 } // detail
 
-template<typename S, typename ... Args>
-void log(log_level level, const S& format, const Args& ... args)
+template<typename ... Args>
+void log(log_level level, const Args& ... args)
 {
     if(!detail::logger<log_level>::is_activated(level)) {return;}
-
     switch(level)
     {
         case log_level::error:
         {
-            ::fmt::print(::fmt::fg(::fmt::color::red),    "Error: "); break;
+            std::cerr << "\e[31mError:\e[0m "; break;
         }
         case log_level::warn:
         {
-            ::fmt::print(::fmt::fg(::fmt::color::yellow), "Warn : "); break;
+            std::cerr << "\e[33mWarn:\e[0m "; break;
         }
         case log_level::info:
         {
-            ::fmt::print(::fmt::fg(::fmt::color::green),  "Info : "); break;
+            std::cerr << "\e[32mInfo:\e[0m "; break;
         }
         case log_level::debug:
         {
-            ::fmt::print(::fmt::fg(::fmt::color::blue),   "Debug: "); break;
+            std::cerr << "\e[34mDebug:\e[0m "; break;
         }
         default:
         {
-            ::fmt::print(::fmt::fg(::fmt::color::orange), "Unknown: "); break;
+            std::cerr << "\e[30;1mUnknown:\e[0m "; break;
         }
     }
-    ::fmt::print(format, args...);
+    detail::log_output(std::cerr, args..., '\n');
     return;
 }
 
