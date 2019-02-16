@@ -15,7 +15,7 @@ uchar4 make_pixel(spray::core::color col)
     pixel.x = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::R(col)) * 256, 0, 255));
     pixel.y = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::G(col)) * 256, 0, 255));
     pixel.z = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::B(col)) * 256, 0, 255));
-    pixel.w = 0xFF;
+    pixel.w = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::A(col)) * 256, 0, 255));
     return pixel;
 }
 
