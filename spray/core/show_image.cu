@@ -32,18 +32,5 @@ void show_image(const dim3 blocks, const dim3 threads,
     return;
 }
 
-void load_image(const dim3 blocks, const dim3 threads,
-        const cudaStream_t stream, const cudaArray_const_t& buf,
-        const std::size_t  width,  const std::size_t height,
-        const thrust::host_vector<uchar4>& image)
-{
-    const thrust::device_vector<uchar4> image_device = image;
-    show_image(blocks, threads, stream, buf, width, height,
-               thrust::device_pointer_cast(image_device.data()));
-    return;
-}
-
-
-
 } // core
 } // spray
