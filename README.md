@@ -30,8 +30,6 @@ spray depends on the following libraries.
   - will automatically be cloned into `extlib/` by CMake.
 - [imgui](https://github.com/ocornut/imgui)
   - will automatically be cloned into `extlib/` by CMake.
-- [fmtlib/fmt](http://fmtlib.net/latest/index.html)
-  - will automatically be cloned into `extlib/` by CMake.
 - [thrust](https://thrust.github.io/)
   - will be found `/path/to/cuda/include` after installing cuda.
 

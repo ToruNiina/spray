@@ -76,21 +76,6 @@ include_directories("${PROJECT_SOURCE_DIR}/extlib/imgui/examples")
 add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 # ----------------------------------------------------------------------------
-# fmtlib/fmt
-if(EXISTS "${PROJECT_SOURCE_DIR}/extlib/fmt")
-    add_definitions(-DFMT_HEADER_ONLY)
-    include_directories("${PROJECT_SOURCE_DIR}/extlib/fmt/include")
-else()
-    execute_process(COMMAND git clone https://github.com/fmtlib/fmt.git
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib")
-    execute_process(COMMAND git checkout -b v5.3.0 refs/tags/5.3.0
-        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/extlib/fmt")
-
-    add_definitions(-DFMT_HEADER_ONLY)
-    include_directories("${PROJECT_SOURCE_DIR}/extlib/fmt/include")
-endif()
-
-# ----------------------------------------------------------------------------
 # libpng
 include (FindPkgConfig)
 if (NOT PKG_CONFIG_FOUND)
