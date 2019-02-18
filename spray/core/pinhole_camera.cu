@@ -1,8 +1,8 @@
 #include <spray/core/pinhole_camera.cuh>
 #include <spray/core/show_image.cuh>
+#include <spray/core/save_image.cuh>
 #include <spray/core/world.cuh>
 #include <imgui.h>
-#include <png++/png.hpp>
 
 namespace spray
 {
@@ -111,19 +111,9 @@ bool pinhole_camera::update_gui()
     ImGui::InputText("File name", filename_buf_.data(), 256);
     if(ImGui::Button("Save image as png"))
     {
-        thrust::host_vector<uchar4> pixels = this->scene_;
-        assert(pixels.size() == this->width_ * this->height_);
-
-        png::image<png::rgba_pixel> img(this->width_, this->height_);
-        for(std::size_t y=0; y<this->height_; ++y)
-        {
-            for(std::size_t x=0; x<this->width_; ++x)
-            {
-                const auto pix = pixels[x + y * this->width_];
-                img[y][x] = png::rgba_pixel(pix.x, pix.y, pix.z, pix.w);
-            }
-        }
-        img.write(filename_buf_.data());
+        const thrust::host_vector<uchar4> pixels = this->scene_;
+        save_image(this->width_, this->height_, pixels,
+                   this->filename_buf_.data());
     }
 
     const auto framerate = ImGui::GetIO().Framerate;
