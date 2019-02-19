@@ -49,6 +49,16 @@ std::unique_ptr<camera_base> make_pinhole_camera(
         std::size_t        height
     );
 
+std::unique_ptr<camera_base> make_orthogonal_camera(
+        std::string        name,
+        spray::geom::point location,
+        spray::geom::point direction,
+        spray::geom::point view_up,
+        float              fov,
+        std::size_t        width,
+        std::size_t        height
+    );
+
 } // core
 } // spray
 #endif// SPRAY_CORE_CAMERA_HPP
