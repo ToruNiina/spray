@@ -10,6 +10,7 @@ namespace core
 struct material
 {
     spray::core::color albedo;
+    spray::core::color emission;
 };
 
 } // core
