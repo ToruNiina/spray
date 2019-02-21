@@ -37,7 +37,7 @@ struct logger
 template<typename Level>
 std::map<Level, bool> logger<Level>::filter;
 
-inline void log_output(std::ostream& os) noexcept
+inline void log_output(std::ostream&) noexcept
 {
     return;
 }
@@ -58,23 +58,23 @@ void log(log_level level, const Args& ... args)
     {
         case log_level::error:
         {
-            std::cerr << "\e[31mError:\e[0m "; break;
+            std::cerr << "\x1b[31mError:\x1b[0m "; break;
         }
         case log_level::warn:
         {
-            std::cerr << "\e[33mWarn:\e[0m "; break;
+            std::cerr << "\x1b[33mWarn:\x1b[0m "; break;
         }
         case log_level::info:
         {
-            std::cerr << "\e[32mInfo:\e[0m "; break;
+            std::cerr << "\x1b[32mInfo:\x1b[0m "; break;
         }
         case log_level::debug:
         {
-            std::cerr << "\e[34mDebug:\e[0m "; break;
+            std::cerr << "\x1b[34mDebug:\x1b[0m "; break;
         }
         default:
         {
-            std::cerr << "\e[30;1mUnknown:\e[0m "; break;
+            std::cerr << "\x1b[30;1mUnknown:\x1b[0m "; break;
         }
     }
     detail::log_output(std::cerr, args..., '\n');
