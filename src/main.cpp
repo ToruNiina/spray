@@ -57,13 +57,19 @@ int main(int argc, char **argv)
         {
             wld->push_back(spray::geom::make_sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.7f),
-                spray::core::material{spray::core::make_color(0.5, 0.5, 0.5)});
+                spray::core::material{
+                    spray::core::make_color(0.5, 0.5, 0.5),
+                    spray::core::make_color(0.0, 0.0, 0.0)
+                });
         }
         else if(p.name == "H")
         {
             wld->push_back(spray::geom::make_sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
-                spray::core::material{spray::core::make_color(1.0, 1.0, 1.0)});
+                spray::core::material{
+                    spray::core::make_color(1.0, 1.0, 1.0),
+                    spray::core::make_color(0.0, 0.0, 0.0)
+                });
         }
     }
 
