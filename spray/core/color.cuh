@@ -8,7 +8,7 @@ namespace spray
 namespace core
 {
     
-__device__
+__device__ __inline__
 uchar4 make_pixel(spray::core::color col)
 {
     uchar4 pixel;

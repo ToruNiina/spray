@@ -6,7 +6,7 @@ namespace spray
 namespace util
 {
 
-__device__
+__device__ __inline__
 float fclampf(float x, float minimum, float maximum)
 {
     return fminf(fmaxf(x, minimum), maximum);
