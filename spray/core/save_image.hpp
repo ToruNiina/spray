@@ -1,7 +1,7 @@
 #ifndef SPRAY_CORE_SAVE_IMAGE_HPP
 #define SPRAY_CORE_SAVE_IMAGE_HPP
 #include <thrust/host_vector.h>
-#include <vector_type.h>
+#include <vector_types.h>
 
 namespace spray
 {
