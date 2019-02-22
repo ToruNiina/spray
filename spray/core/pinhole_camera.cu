@@ -2,7 +2,6 @@
 #include <spray/core/show_image.cuh>
 #include <spray/core/save_image.hpp>
 #include <spray/core/world.cuh>
-#include <spray/core/color.cuh>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
 #include <imgui.h>
