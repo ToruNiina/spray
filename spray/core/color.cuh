@@ -1,7 +1,7 @@
 #ifndef SPRAY_CORE_COLOR_CUH
 #define SPRAY_CORE_COLOR_CUH
 #include <spray/core/color.hpp>
-#include <spray/util/cuda_util.cuh>
+#include <spray/util/cuda_util.hpp>
 
 namespace spray
 {
