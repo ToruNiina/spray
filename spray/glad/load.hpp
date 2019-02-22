@@ -17,8 +17,8 @@ inline void load()
         spray::log(spray::log_level::error, "failed to load OpenGL via glad");
         throw std::runtime_error("Error: failed to load OpenGL via glad");
     }
-    spray::log(spray::log_level::info, "glad loaded OpenGL {}.{}\n",
-               GLVersion.major, GLVersion.minor);
+    spray::log(spray::log_level::info, "glad loaded OpenGL ",
+               GLVersion.major, '.', GLVersion.minor, '\n');
     return;
 }
 
@@ -30,8 +30,8 @@ inline void load(decltype(&glfwGetProcAddress) fptr)
         spray::log(spray::log_level::error, "failed to load OpenGL via glad");
         throw std::runtime_error("Error: failed to load OpenGL via glad");
     }
-    spray::log(spray::log_level::info, "glad loaded OpenGL {}.{}\n",
-               GLVersion.major, GLVersion.minor);
+    spray::log(spray::log_level::info, "glad loaded OpenGL ",
+               GLVersion.major, '.', GLVersion.minor, '\n');
     return;
 }
 
