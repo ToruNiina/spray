@@ -178,7 +178,7 @@ void render_kernel(const std::size_t width, const std::size_t height,
 
     std::uint32_t index = 0xFFFFFFFF;
     spray::geom::collision col;
-    col.t = spray::geom::inf();
+    col.t = spray::util::inf();
     for(std::size_t i=0; i<N; ++i)
     {
         const spray::geom::collision c = collide(ray, spheres[i], 0.0f);

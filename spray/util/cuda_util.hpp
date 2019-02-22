@@ -1,6 +1,8 @@
 #ifndef SPRAY_CUDA_UTIL_HPP
 #define SPRAY_CUDA_UTIL_HPP
 #include <spray/util/cuda_macro.hpp>
+#include <math_constants.h>
+#include <limits>
 #include <cmath>
 
 namespace spray
@@ -9,12 +11,23 @@ namespace util
 {
 
 SPRAY_HOST_DEVICE
-SPRAY_INLINE float fclampf(float x, float minimum, float maximum)
+SPRAY_INLINE float fclampf(float x, float minimum, float maximum) noexcept
 {
 #ifdef __CUDA_ARCH__
     return fminf(fmaxf(x, minimum), maximum);
 #else
     return std::min(std::max(x, minimum), maximum);
+#endif
+}
+
+
+SPRAY_HOST_DEVICE
+SPRAY_INLINE float inf() noexcept
+{
+#ifdef __CUDA_ARCH__
+    return CUDART_INF_F;
+#else
+    return std::numeric_limits<float>::infinity();
 #endif
 }
 
