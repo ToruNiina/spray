@@ -1,5 +1,7 @@
 # spray
 
+![logo](https://github.com/ToruNiina/spray/blob/misc/misc/logo-full.png)
+
 Ray tracer for molecules.
 
 # Installation
