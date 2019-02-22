@@ -77,7 +77,7 @@ void log(log_level level, const Args& ... args)
             std::cerr << "\x1b[30;1mUnknown:\x1b[0m "; break;
         }
     }
-    detail::log_output(std::cerr, args..., '\n');
+    detail::log_output(std::cerr, args...);
     return;
 }
 
