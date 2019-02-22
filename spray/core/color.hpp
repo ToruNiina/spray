@@ -22,7 +22,7 @@ inline color make_color(float x, float y, float z, float w) noexcept
 SPRAY_HOST_DEVICE
 inline color make_color(float x, float y, float z) noexcept
 {
-    return color{float4{x, y, z, 0.0f}};
+    return color{float4{x, y, z, 1.0f}};
 }
 
 SPRAY_HOST_DEVICE inline float R(const color& c) noexcept {return c.rgba.x;}
@@ -84,7 +84,7 @@ SPRAY_INLINE uchar4 make_pixel(spray::core::color col)
     pixel.x = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::R(col)) * 256, 0, 255));
     pixel.y = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::G(col)) * 256, 0, 255));
     pixel.z = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::B(col)) * 256, 0, 255));
-    pixel.w = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::A(col)) * 256, 0, 255));
+    pixel.w = 0xFF;
     return pixel;
 }
 
