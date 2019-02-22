@@ -175,7 +175,7 @@ void render_orthogonal_kernel(
     const spray::geom::point src = lower_left +
                                    ((x+0.5f) *  rwidth) * horizontal +
                                    ((y+0.5f) * rheight) * vertical;
-    const spray::geom::ray ray = spray::geom::make_ray(src, src + direction);
+    const spray::geom::ray ray = spray::geom::make_ray(src, direction);
 
     std::uint32_t index = 0xFFFFFFFF;
     spray::geom::collision col;
