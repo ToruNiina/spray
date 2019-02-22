@@ -9,6 +9,7 @@
 #include <spray/xyz/xyz.hpp>
 
 #include <chrono>
+#include <cmath>
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>

@@ -3,6 +3,7 @@
 #include <spray/core/cuda_macro.hpp>
 #include <vector_types.h>
 #include <vector_functions.h>
+#include <math.h>
 
 namespace spray
 {
