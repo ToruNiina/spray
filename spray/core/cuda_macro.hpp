@@ -6,11 +6,13 @@
 #  define SPRAY_DEVICE      __device__
 #  define SPRAY_HOST_DEVICE __host__ __device__
 #  define SPRAY_GLOBAL      __global__
+#  define SPRAY_INLINE      __inline__
 #else
 #  define SPRAY_HOST
 #  define SPRAY_DEVICE
 #  define SPRAY_HOST_DEVICE
 #  define SPRAY_GLOBAL
+#  define SPRAY_INLINE      inline
 #endif
 
 #endif// SPRAY_CORE_CUDA_MACRO_HPP
