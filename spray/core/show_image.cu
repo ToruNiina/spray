@@ -1,4 +1,4 @@
-#include <spray/core/cuda_assert.hpp>
+#include <spray/util/cuda_assert.hpp>
 #include <thrust/device_vector.h>
 #include <thrust/device_ptr.h>
 
@@ -27,7 +27,7 @@ void show_image(const dim3 blocks, const dim3 threads,
         const std::size_t  width,  const std::size_t height,
         thrust::device_ptr<const uchar4> image)
 {
-    cuda_assert(cudaBindSurfaceToArray(surf_ref, buf));
+    spray::util::cuda_assert(cudaBindSurfaceToArray(surf_ref, buf));
     show_image_kernel<<<blocks, threads, 0, stream>>>(width, height, image);
     return;
 }

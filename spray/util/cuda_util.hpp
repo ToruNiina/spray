@@ -1,6 +1,6 @@
 #ifndef SPRAY_CUDA_UTIL_HPP
 #define SPRAY_CUDA_UTIL_HPP
-#include <spray/core/cuda_macro.hpp>
+#include <spray/util/cuda_macro.hpp>
 #include <cmath>
 
 namespace spray

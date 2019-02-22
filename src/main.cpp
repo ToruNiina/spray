@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     spray::core::buffer_array bufarray(spray::glfw::get_frame_buffer_size(window));
 
     cudaStream_t stream;
-    spray::core::cuda_assert(
+    spray::util::cuda_assert(
             cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
 
     auto wld = spray::core::make_world();

@@ -1,7 +1,7 @@
 #ifndef SPRAY_CORE_RENDER_BUFFER_ARRAY_HPP
 #define SPRAY_CORE_RENDER_BUFFER_ARRAY_HPP
 #include <glad/glad.h> // use OpenGL functions
-#include <spray/core/cuda_assert.hpp>
+#include <spray/util/cuda_assert.hpp>
 #include <spray/util/scope_exit.hpp>
 #include <cuda_gl_interop.h>
 #include <utility>
@@ -61,7 +61,7 @@ struct buffer_array
         // cleanup current resource
         if(this->cuda_graphics_resource_ != nullptr)
         {
-            cuda_assert(cudaGraphicsUnregisterResource(
+            spray::util::cuda_assert(cudaGraphicsUnregisterResource(
                         this->cuda_graphics_resource_));
         }
 
@@ -69,24 +69,24 @@ struct buffer_array
         glNamedRenderbufferStorage(this->render_buffer_, GL_RGBA8, width, height);
 
         // make cuda Array to map the render buffer and edit it from cuda
-        cuda_assert(cudaGraphicsGLRegisterImage(
+        spray::util::cuda_assert(cudaGraphicsGLRegisterImage(
             std::addressof(this->cuda_graphics_resource_),
             this->render_buffer_, GL_RENDERBUFFER,
             cudaGraphicsRegisterFlagsSurfaceLoadStore |
             cudaGraphicsRegisterFlagsWriteDiscard));
 
         // lock graphics resource from OpenGL
-        cuda_assert(cudaGraphicsMapResources(
+        spray::util::cuda_assert(cudaGraphicsMapResources(
             1, std::addressof(this->cuda_graphics_resource_), 0));
 
         // unlock it when exit from this scope.
         const auto force_unlock = spray::util::make_scope_exit([this]() -> void {
-                cuda_assert(cudaGraphicsUnmapResources(
+                spray::util::cuda_assert(cudaGraphicsUnmapResources(
                     1, std::addressof(this->cuda_graphics_resource_), 0));
             });
 
         // bind graphics resource to cudaArray_t
-        cuda_assert(cudaGraphicsSubResourceGetMappedArray(
+        spray::util::cuda_assert(cudaGraphicsSubResourceGetMappedArray(
             std::addressof(this->cuda_array_), this->cuda_graphics_resource_,
             0, 0));
 

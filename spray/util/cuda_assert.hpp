@@ -1,12 +1,12 @@
-#ifndef SPRAY_CUDA_CUDA_ASSERT_HPP
-#define SPRAY_CUDA_CUDA_ASSERT_HPP
+#ifndef SPRAY_UTIL_CUDA_ASSERT_HPP
+#define SPRAY_UTIL_CUDA_ASSERT_HPP
 #include <cuda_runtime.h>
 #include <stdexcept>
 #include <string>
 
 namespace spray
 {
-namespace core
+namespace util
 {
 
 inline void cuda_assert(cudaError_t err)
@@ -22,6 +22,6 @@ inline void cuda_assert(cudaError_t err)
     return;
 }
 
-} // core
+} // util
 } // spray
-#endif// SPRAY_CUDA_CUDA_ASSERT_HPP
+#endif// SPRAY_UTIL_CUDA_ASSERT_HPP
