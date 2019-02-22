@@ -21,7 +21,7 @@ void save_image(const std::size_t w, const std::size_t h,
             img[y][x] = png::rgba_pixel(pix.x, pix.y, pix.z, pix.w);
         }
     }
-    img.write(filename.data());
+    img.write(filename);
     return;
 }
 
