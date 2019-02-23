@@ -63,8 +63,9 @@ path_trace(spray::geom::ray    ray,
            thrust::device_ptr<const spray::geom::sphere>   spheres)
 {
     thrust::default_random_engine rng(seed);
-    uchar4        pixel = background;
-    std::uint32_t index = 0xFFFFFFFF;
+    uchar4 pixel = background;
+
+    std::uint32_t index;
     spray::geom::collision col;
     thrust::tie(col, index) = hit(ray, 0.0f, N, spheres);
 
