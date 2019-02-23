@@ -6,6 +6,7 @@
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
 
+#include <thrust/tuple.h>
 #include <thrust/random.h>
 #include <thrust/transform.h>
 #include <thrust/iterator/counting_iterator.h>
@@ -28,11 +29,29 @@ void render_kernel(
         const uchar4             background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img,
-        thrust::device_ptr<std::uint32_t> first_hit
-        );
+        thrust::device_ptr<uchar4>        img,
+        thrust::device_ptr<std::uint32_t> first_hit_obj,
+        thrust::device_ptr<std::uint32_t> seeds)
+{
+    const int x = threadIdx.x + blockIdx.x * blockDim.x;
+    const int y = threadIdx.y + blockIdx.y * blockDim.y;
+    if(x >= width || y >= height) {return;}
 
+    const std::size_t offset = x + y * width;
 
+    const spray::geom::point dst = lower_left +
+                                   ((x+0.5f) *  rwidth) * horizontal +
+                                   ((y+0.5f) * rheight) * vertical;
+    const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
+
+    const thrust::tuple<uchar4, std::uint32_t, std::uint32_t> pix_idx_seed =
+        path_trace(ray, background, seeds[offset], N, material, spheres);
+
+    img[offset]           = thrust::get<0>(pix_idx_seed);
+    first_hit_obj[offset] = thrust::get<1>(pix_idx_seed);
+    seeds[offset]         = thrust::get<2>(pix_idx_seed);
+    return;
+}
 
 std::unique_ptr<camera_base> make_pinhole_camera(
         std::string        name,
@@ -160,47 +179,14 @@ void pinhole_camera::render(
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),
-        thrust::device_pointer_cast(this->device_first_hit_obj_.data())
+        thrust::device_pointer_cast(this->device_first_hit_obj_.data()),
+        thrust::device_pointer_cast(this->device_seeds_.data())
         );
     this->host_first_hit_obj_ = device_first_hit_obj_;
 
     spray::core::show_image(
            blocks, threads, stream, bufarray.array(), this->width_, this->height_,
            thrust::device_pointer_cast(this->scene_.data()));
-    return;
-}
-
-__global__
-void render_kernel(
-        const std::size_t width, const std::size_t height,
-        const float      rwidth, const float      rheight,
-        const spray::geom::point location,
-        const spray::geom::point lower_left,
-        const spray::geom::point horizontal,
-        const spray::geom::point vertical,
-        const std::size_t        N,
-        const uchar4             background,
-        thrust::device_ptr<const spray::core::material> material,
-        thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img,
-        thrust::device_ptr<std::uint32_t> first_hit_obj)
-{
-    const int x = threadIdx.x + blockIdx.x * blockDim.x;
-    const int y = threadIdx.y + blockIdx.y * blockDim.y;
-    if(x >= width || y >= height) {return;}
-
-    const std::size_t offset = x + y * width;
-
-    const spray::geom::point dst = lower_left +
-                                   ((x+0.5f) *  rwidth) * horizontal +
-                                   ((y+0.5f) * rheight) * vertical;
-    const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
-
-    const thrust::pair<uchar4, std::uint32_t> pix_idx =
-        path_trace(ray, background, N, material, spheres);
-
-    img[offset]           = pix_idx.first;
-    first_hit_obj[offset] = pix_idx.second;
     return;
 }
 

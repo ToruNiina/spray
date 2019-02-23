@@ -7,7 +7,7 @@
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <thrust/device_ptr.h>
-#include <thrust/pair.h>
+#include <thrust/tuple.h>
 #include <cstdint>
 
 namespace spray
@@ -15,15 +15,18 @@ namespace spray
 namespace core
 {
 
+// {pixel, first-hit-object, next-seed}
 __device__ __inline__
-thrust::pair<uchar4, std::uint32_t>
+thrust::tuple<uchar4, std::uint32_t, std::uint32_t>
 path_trace(spray::geom::ray    ray,
            const uchar4        background,
+           const std::uint32_t seed,
            const std::size_t   N,
            thrust::device_ptr<const spray::core::material> material,
            thrust::device_ptr<const spray::geom::sphere>   spheres)
 {
-    std::uint32_t index = 0xFFFFFFFF;
+    std::uint32_t index     = 0xFFFFFFFF;
+    std::uint32_t next_seed = seed;
     spray::geom::collision col;
     col.t = spray::util::inf();
     for(std::size_t i=0; i<N; ++i)
@@ -46,7 +49,7 @@ path_trace(spray::geom::ray    ray,
         pixel.w = 0xFF;
     }
 
-    return thrust::make_pair(pixel, index);
+    return thrust::make_tuple(pixel, index, next_seed);
 }
 
 } // core
