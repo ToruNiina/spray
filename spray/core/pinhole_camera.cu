@@ -26,7 +26,7 @@ void render_kernel(
         const spray::geom::point horizontal,
         const spray::geom::point vertical,
         const std::size_t        N,
-        const uchar4             background,
+        const spray::core::color background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
         thrust::device_ptr<uchar4>        img,
@@ -175,7 +175,7 @@ void pinhole_camera::render(
     spray::core::render_kernel<<<blocks, threads, 0, stream>>>(
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->location_, this->lower_left_, this->horizontal_, this->vertical_,
-        wld.device_spheres().size(), make_pixel(wld.background()),
+        wld.device_spheres().size(), wld.background(),
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),

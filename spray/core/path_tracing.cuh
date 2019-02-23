@@ -54,16 +54,16 @@ hit(spray::geom::ray r, const float start, const std::size_t N,
 // {pixel, first-hit-object, next-seed}
 __device__ __inline__
 thrust::tuple<uchar4, std::uint32_t, std::uint32_t>
-path_trace(spray::geom::ray    ray,
-           const uchar4        background,
-           const std::uint32_t seed,
-           const std::uint32_t depth,
-           const std::size_t   N,
-           thrust::device_ptr<const spray::core::material> material,
-           thrust::device_ptr<const spray::geom::sphere>   spheres)
+path_trace(const spray::geom::ray   ray,
+           const spray::core::color background,
+           const std::uint32_t      seed,
+           const std::uint32_t      depth,
+           const std::size_t        N,
+           const thrust::device_ptr<const spray::core::material> material,
+           const thrust::device_ptr<const spray::geom::sphere>   spheres)
 {
     thrust::default_random_engine rng(seed);
-    uchar4 pixel = background;
+    uchar4 pixel = make_pixel(background);
 
     std::uint32_t index;
     spray::geom::collision col;
