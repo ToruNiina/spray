@@ -5,6 +5,10 @@
 #include <spray/core/world.cuh>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
+
+#include <thrust/random.h>
+#include <thrust/transform.h>
+#include <thrust/iterator/counting_iterator.h>
 #include <imgui.h>
 
 namespace spray
@@ -79,6 +83,17 @@ void pinhole_camera::reset(spray::geom::point location,
         this->scene_.resize(width * height);
         this->host_first_hit_obj_.resize(width * height);
         this->device_first_hit_obj_.resize(width * height);
+
+        this->device_seeds_.resize(width * height);
+        thrust::transform(
+                thrust::counting_iterator<std::uint32_t>(0),
+                thrust::counting_iterator<std::uint32_t>(width * height),
+                this->device_seeds_.begin(),
+                [] __device__ (const std::uint32_t n) {
+                    thrust::default_random_engine rng;
+                    rng.discard(n);
+                    return rng();
+                });
     }
 
     this->field_of_view_buf_ = this->field_of_view_;
@@ -91,6 +106,7 @@ void pinhole_camera::reset(spray::geom::point location,
     this->vup_buf_[0] = spray::geom::X(this->view_up_);
     this->vup_buf_[1] = spray::geom::Y(this->view_up_);
     this->vup_buf_[2] = spray::geom::Z(this->view_up_);
+
     return ;
 }
 

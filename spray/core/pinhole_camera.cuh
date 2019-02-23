@@ -157,6 +157,8 @@ struct pinhole_camera final : public camera_base
     // scene image
     thrust::device_vector<uchar4> scene_;
 
+    thrust::device_vector<std::uint32_t> device_seeds_;
+
     thrust::host_vector<std::uint32_t>   host_first_hit_obj_;
     thrust::device_vector<std::uint32_t> device_first_hit_obj_;
 
