@@ -7,6 +7,7 @@
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <thrust/device_ptr.h>
+#include <thrust/random.h>
 #include <thrust/tuple.h>
 #include <cstdint>
 
@@ -26,7 +27,7 @@ path_trace(spray::geom::ray    ray,
            thrust::device_ptr<const spray::geom::sphere>   spheres)
 {
     std::uint32_t index     = 0xFFFFFFFF;
-    std::uint32_t next_seed = seed;
+    thrust::default_random_engine rng(seed);
     spray::geom::collision col;
     col.t = spray::util::inf();
     for(std::size_t i=0; i<N; ++i)
@@ -49,7 +50,7 @@ path_trace(spray::geom::ray    ray,
         pixel.w = 0xFF;
     }
 
-    return thrust::make_tuple(pixel, index, next_seed);
+    return thrust::make_tuple(pixel, index, rng());
 }
 
 } // core
