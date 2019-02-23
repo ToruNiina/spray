@@ -175,7 +175,7 @@ void pinhole_camera::render(
     spray::core::render_kernel<<<blocks, threads, 0, stream>>>(
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->location_, this->lower_left_, this->horizontal_, this->vertical_,
-        wld.device_spheres().size(), make_pixel(wld_base.background()),
+        wld.device_spheres().size(), make_pixel(wld.background()),
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),
