@@ -1,4 +1,5 @@
 #include <spray/core/pinhole_camera.cuh>
+#include <spray/core/path_tracing.cuh>
 #include <spray/core/show_image.cuh>
 #include <spray/core/save_image.hpp>
 #include <spray/core/world.cuh>
@@ -179,30 +180,11 @@ void render_kernel(
                                    ((y+0.5f) * rheight) * vertical;
     const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
 
-    std::uint32_t index = 0xFFFFFFFF;
-    spray::geom::collision col;
-    col.t = spray::util::inf();
-    for(std::size_t i=0; i<N; ++i)
-    {
-        const spray::geom::collision c = collide(ray, spheres[i], 0.0f);
-        if(!isinf(c.t) && c.t < col.t)
-        {
-            index = i;
-            col   = c;
-        }
-    }
+    const thrust::pair<uchar4, std::uint32_t> pix_idx =
+        path_trace(ray, background, N, material, spheres);
 
-    uchar4 pixel = background;
-    if(index != 0xFFFFFFFF)
-    {
-        const spray::core::material mat = material[index];
-        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
-                spray::geom::direction(ray), spray::geom::normal(col)));
-        pixel = make_pixel(color);
-        pixel.w = 0xFF;
-    }
-    img[offset] = pixel;
-    first_hit_obj[offset] = index;
+    img[offset]           = pix_idx.first;
+    first_hit_obj[offset] = pix_idx.second;
     return;
 }
 
