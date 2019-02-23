@@ -20,6 +20,7 @@ void render_kernel(
         const spray::geom::point horizontal,
         const spray::geom::point vertical,
         const std::size_t        N,
+        const uchar4             background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
         thrust::device_ptr<uchar4> img,
@@ -135,10 +136,13 @@ void pinhole_camera::render(
         wld.load();
     }
 
+    auto background = make_pixel(wld_base.background());
+    background.w = 0x00; // make it transparent
+
     spray::core::render_kernel<<<blocks, threads, 0, stream>>>(
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->location_, this->lower_left_, this->horizontal_, this->vertical_,
-        wld.device_spheres().size(),
+        wld.device_spheres().size(), background,
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),
@@ -153,13 +157,15 @@ void pinhole_camera::render(
 }
 
 __global__
-void render_kernel(const std::size_t width, const std::size_t height,
-        const float rwidth, const float rheight,
+void render_kernel(
+        const std::size_t width, const std::size_t height,
+        const float      rwidth, const float      rheight,
         const spray::geom::point location,
         const spray::geom::point lower_left,
         const spray::geom::point horizontal,
         const spray::geom::point vertical,
         const std::size_t        N,
+        const uchar4             background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
         thrust::device_ptr<uchar4> img,
@@ -189,20 +195,12 @@ void render_kernel(const std::size_t width, const std::size_t height,
         }
     }
 
-    uchar4 pixel;
-    if(index == 0xFFFFFFFF)
-    {
-        pixel.x = 0x00;
-        pixel.y = 0x00;
-        pixel.z = 0x00;
-        pixel.w = 0x00;
-    }
-    else
+    uchar4 pixel = background;
+    if(index != 0xFFFFFFFF)
     {
         const spray::core::material mat = material[index];
         const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
                 spray::geom::direction(ray), spray::geom::normal(col)));
-
         pixel = make_pixel(color);
     }
     img[offset] = pixel;

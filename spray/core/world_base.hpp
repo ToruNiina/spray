@@ -24,6 +24,8 @@ class world_base
     virtual sphere_type const&   sphere_at  (const std::size_t idx) const = 0;
     virtual material_type const& material_at(const std::size_t idx) const = 0;
 
+    virtual color background() const noexcept = 0;
+
     virtual void change_sphere_at  (const std::size_t idx, const sphere_type&) = 0;
     virtual void change_material_at(const std::size_t idx, const material_type&) = 0;
 
