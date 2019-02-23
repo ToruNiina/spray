@@ -21,7 +21,7 @@ bool world::update_gui()
         {
             ImGui::Begin("Background");
             is_focused = is_focused || ImGui::IsWindowFocused();
-            ImGui::ColorEdit3("background color",
+            ImGui::ColorEdit4("background color",
                     reinterpret_cast<float*>(std::addressof(this->bg_)));
             if (ImGui::Button("Close"))
             {
