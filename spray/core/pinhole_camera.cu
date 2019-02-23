@@ -45,7 +45,7 @@ void render_kernel(
     const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
 
     const thrust::tuple<uchar4, std::uint32_t, std::uint32_t> pix_idx_seed =
-        path_trace(ray, background, seeds[offset], N, material, spheres);
+        path_trace(ray, background, seeds[offset], 16, N, material, spheres);
 
     img[offset]           = thrust::get<0>(pix_idx_seed);
     first_hit_obj[offset] = thrust::get<1>(pix_idx_seed);
@@ -189,7 +189,6 @@ void pinhole_camera::render(
            thrust::device_pointer_cast(this->scene_.data()));
     return;
 }
-
 
 } // core
 } // spray
