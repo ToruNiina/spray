@@ -5,6 +5,8 @@
 #include <spray/core/world.cuh>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
+#include <spray/util/cuda_assert.hpp>
+#include <spray/util/log.hpp>
 
 #include <thrust/tuple.h>
 #include <thrust/random.h>
@@ -182,11 +184,15 @@ void pinhole_camera::render(
         thrust::device_pointer_cast(this->device_first_hit_obj_.data()),
         thrust::device_pointer_cast(this->device_seeds_.data())
         );
-    this->host_first_hit_obj_ = device_first_hit_obj_;
+    spray::util::cuda_assert(cudaPeekAtLastError());
+
+    this->host_first_hit_obj_ = this->device_first_hit_obj_;
 
     spray::core::show_image(
-           blocks, threads, stream, bufarray.array(), this->width_, this->height_,
-           thrust::device_pointer_cast(this->scene_.data()));
+       blocks, threads, stream, bufarray.array(), this->width_, this->height_,
+       thrust::device_pointer_cast(this->scene_.data()));
+    spray::util::cuda_assert(cudaPeekAtLastError());
+
     return;
 }
 
