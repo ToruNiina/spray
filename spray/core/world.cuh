@@ -21,7 +21,7 @@ class world : public world_base
 
   public:
 
-    world() = default;
+    world(): is_loaded_(false), bg_(make_color(1.0f, 1.0f, 1.0f)) {}
     ~world() override = default;
 
     sphere_type const&   sphere_at  (const std::size_t idx) const override
