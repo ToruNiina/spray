@@ -1,6 +1,6 @@
 #ifndef SPRAY_CORE_PATH_TRACING_CUH
 #define SPRAY_CORE_PATH_TRACING_CUH
-#include <spray/util/cuda_util.hpp>
+#include <spray/util/cuda_math.hpp>
 #include <spray/geom/sphere.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>

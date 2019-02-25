@@ -1,6 +1,6 @@
 #ifndef SPRAY_GEOM_COLLIDE_HPP
 #define SPRAY_GEOM_COLLIDE_HPP
-#include <spray/util/cuda_util.hpp>
+#include <spray/util/cuda_math.hpp>
 #include <spray/geom/point.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/sphere.hpp>

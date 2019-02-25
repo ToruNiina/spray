@@ -1,6 +1,6 @@
 #ifndef SPRAY_CORE_COLOR_HPP
 #define SPRAY_CORE_COLOR_HPP
-#include <spray/util/cuda_util.hpp>
+#include <spray/util/cuda_math.hpp>
 #include <vector_types.h>
 
 namespace spray

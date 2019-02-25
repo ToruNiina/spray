@@ -1,5 +1,5 @@
-#ifndef SPRAY_CUDA_UTIL_HPP
-#define SPRAY_CUDA_UTIL_HPP
+#ifndef SPRAY_UTIL_CUDA_MATH_HPP
+#define SPRAY_UTIL_CUDA_MATH_HPP
 #include <spray/util/cuda_macro.hpp>
 #include <math_constants.h>
 #include <limits>
@@ -34,4 +34,4 @@ SPRAY_INLINE float inf() noexcept
 
 } // util
 } // spray
-#endif// SPRAY_CUDA_UTIL_HPP
+#endif// SPRAY_UTIL_CUDA_MATH_HPP
