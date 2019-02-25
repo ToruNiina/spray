@@ -1,11 +1,12 @@
 #include <spray/glad/load.hpp>
 #include <spray/glfw/init.hpp>
 #include <spray/glfw/window.hpp>
-#include <spray/core/buffer_array.hpp>
 
+#include <spray/core/buffer_array.hpp>
 #include <spray/core/camera_base.hpp>
 #include <spray/core/world_base.hpp>
 
+#include <spray/util/log.hpp>
 #include <spray/xyz/xyz.hpp>
 
 #include <chrono>
@@ -35,6 +36,31 @@ int main(int argc, char **argv)
     spray::glfw::swap_interval(1);
 
     spray::core::buffer_array bufarray(spray::glfw::get_frame_buffer_size(window));
+
+    int number_of_device = 0;
+    spray::util::cuda_assert(cudaGetDeviceCount(std::addressof(number_of_device)));
+
+    if(number_of_device < 1)
+    {
+        spray::log(spray::log_level::error, "no CUDA device found.\n");
+        return 1;
+    }
+
+    cudaDeviceProp prop;
+    spray::util::cuda_assert(cudaGetDeviceProperties(std::addressof(prop), 0));
+    spray::log(spray::log_level::info, "CUDA device ", prop.name, " found.\n");
+    spray::log(spray::log_level::info, "Compute capability ",
+               prop.major, '.', prop.minor, ".\n");
+//     spray::log(spray::log_level::info, "Register size per block ",
+//                prop.regsPerBlock, ".\n");
+//     spray::log(spray::log_level::info, "max threads per block is ",
+//                prop.maxThreadsPerBlock, ".\n");
+//     spray::log(spray::log_level::info, "max threads dimension ",
+//                prop.maxThreadsDim[0], 'x', prop.maxThreadsDim[1], 'x',
+//                prop.maxThreadsDim[2], ".\n");
+//     spray::log(spray::log_level::info, "max size of each dimension of a grid ",
+//                prop.maxGridSize[0], 'x', prop.maxGridSize[1], 'x',
+//                prop.maxGridSize[2], ".\n");
 
     cudaStream_t stream;
     spray::util::cuda_assert(
