@@ -38,6 +38,8 @@ bool world::update_gui()
             auto& buf = this->material_buffer_.at(idx);
             ImGui::ColorEdit3("albedo",
                     reinterpret_cast<float*>(std::addressof(buf.albedo)));
+            ImGui::ColorEdit3("emission",
+                    reinterpret_cast<float*>(std::addressof(buf.emission)));
             if(ImGui::Button("Apply changes"))
             {
                 this->change_material_at(idx, buf);
