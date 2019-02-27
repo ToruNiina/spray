@@ -17,19 +17,7 @@ namespace spray
 {
 namespace core
 {
-/* i: intensity, a: albedo, e: emission
- *
- * i0 = e0 + a0 * i1
- *    = e0 + a0 * (e1 + a1 * i2)
- *    = e0 + a0 * (e1 + a1 * (e2 + a2 * i3))
- *    = e0 + a0 * (e1 + a1 * (e2 + a2 * (e3 + a3 * i4)))
- *    = ...
- * i0 = e0 + a0 * i1
- *    = e0 + a0 * e1 + a0 * a1 * i2
- *    = e0 + a0 * e1 + a0 * a1 * e2 + a0 * a1 * a2 * i3
- *    = e0 + a0 * e1 + a0 * a1 * e2 + a0 * a1 * a2 * e3 + a0 * a1 * a2 * a3 * i4
- *    = ...
- */
+
 
 __device__ __inline__
 thrust::pair<spray::geom::collision, std::uint32_t>
@@ -52,9 +40,23 @@ hit(spray::geom::ray r, const float start, const std::size_t N,
     return thrust::make_pair(col, index);
 }
 
+/* i: intensity, a: albedo, e: emission
+ *
+ * i0 = e0 + a0 * i1
+ *    = e0 + a0 * (e1 + a1 * i2)
+ *    = e0 + a0 * (e1 + a1 * (e2 + a2 * i3))
+ *    = e0 + a0 * (e1 + a1 * (e2 + a2 * (e3 + a3 * i4)))
+ *    = ...
+ * i0 = e0 + a0 * i1
+ *    = e0 + a0 * e1 + a0 * a1 * i2
+ *    = e0 + a0 * e1 + a0 * a1 * e2 + a0 * a1 * a2 * i3
+ *    = e0 + a0 * e1 + a0 * a1 * e2 + a0 * a1 * a2 * e3 + a0 * a1 * a2 * a3 * i4
+ *    = ...
+ */
+
 // {pixel, first-hit-object, next-seed}
 __device__ __inline__
-thrust::tuple<uchar4, std::uint32_t, std::uint32_t>
+thrust::tuple<spray::core::color, std::uint32_t, std::uint32_t>
 path_trace(const spray::geom::ray   ray,
            const spray::core::color background,
            const std::uint32_t      seed,
@@ -90,7 +92,7 @@ path_trace(const spray::geom::ray   ray,
     }
     intensity = intensity + albedo * background;
 
-    return thrust::make_tuple(make_pixel(intensity), first_hit, rng());
+    return thrust::make_tuple(intensity, first_hit, rng());
 }
 
 
