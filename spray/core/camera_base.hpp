@@ -35,8 +35,8 @@ struct camera_base
     virtual void roll   (float angle) = 0;
 
     virtual bool update_gui() = 0; // returns true if the window is focused
-    virtual void render(const dim3 block, const dim3 thread, const cudaStream_t,
-        const spray::core::world_base&, const buffer_array&) = 0;
+    virtual void render(const cudaStream_t, const spray::core::world_base&,
+                        const buffer_array&) = 0;
 };
 
 std::unique_ptr<camera_base> make_pinhole_camera(

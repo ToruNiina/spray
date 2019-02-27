@@ -164,8 +164,7 @@ bool pinhole_camera::update_gui()
     return focused;
 }
 
-void pinhole_camera::render(
-        const dim3 blocks, const dim3 threads, const cudaStream_t stream,
+void pinhole_camera::render(const cudaStream_t stream,
         const world_base& wld_base, const buffer_array& bufarray)
 {
     const auto& wld = dynamic_cast<spray::core::world const&>(wld_base);
@@ -174,7 +173,21 @@ void pinhole_camera::render(
         wld.load();
     }
 
-    spray::core::render_kernel<<<blocks, threads, 0, stream>>>(
+    cudaFuncAttributes attr;
+    spray::util::cuda_assert(cudaFuncGetAttributes(&attr, render_kernel));
+//     spray::log(spray::log_level::debug,
+//                "max number of threads per block allowed for the kernel is ",
+//                attr.maxThreadsPerBlock, '\n');
+
+    cudaDeviceProp prop;
+    spray::util::cuda_assert(cudaGetDeviceProperties(&prop, 0));
+
+    const auto warp_number = attr.maxThreadsPerBlock / prop.warpSize;
+    const dim3 threads(prop.warpSize, warp_number);
+    const dim3 blocks(std::ceil(double(bufarray.width())  / threads.x),
+                      std::ceil(double(bufarray.height()) / threads.y));
+
+    render_kernel<<<blocks, threads, 0, stream>>>(
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->location_, this->lower_left_, this->horizontal_, this->vertical_,
         wld.device_spheres().size(), wld.background(),

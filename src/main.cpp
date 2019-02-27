@@ -178,11 +178,7 @@ int main(int argc, char **argv)
 
         bufsize = spray::glfw::get_frame_buffer_size(window);
 
-        const dim3 threads(32, 32);
-        const dim3 blocks (static_cast<int>(std::ceil(double(bufsize.first)  / threads.x)),
-                           static_cast<int>(std::ceil(double(bufsize.second) / threads.y)));
-
-        cam->render(blocks, threads, stream, *wld, bufarray);
+        cam->render(stream, *wld, bufarray);
         spray::core::blit_framebuffer(bufarray);
 
         bool is_focused = false;
