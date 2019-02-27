@@ -5,6 +5,10 @@
 #include <limits>
 #include <cmath>
 
+#ifndef __CUDACC__
+#include <algorithm>
+#endif
+
 namespace spray
 {
 namespace util
