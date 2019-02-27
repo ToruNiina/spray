@@ -1,4 +1,5 @@
 #include <spray/core/orthogonal_camera.cuh>
+#include <spray/core/path_tracing.cuh>
 #include <spray/core/show_image.cuh>
 #include <spray/core/save_image.hpp>
 #include <spray/core/world.cuh>
@@ -12,7 +13,7 @@ namespace core
 {
 
 __global__
-void render_orthogonal_kernel(
+void render_orthogonal_kernel(const std::uint32_t weight,
         const std::size_t width, const std::size_t height,
         const float      rwidth, const float      rheight,
         const spray::geom::point direction,
@@ -24,7 +25,8 @@ void render_orthogonal_kernel(
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
         thrust::device_ptr<spray::core::color> img,
-        thrust::device_ptr<std::uint32_t> first_hit_obj)
+        thrust::device_ptr<std::uint32_t> first_hit_obj,
+        thrust::device_ptr<std::uint32_t> seeds)
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -37,30 +39,13 @@ void render_orthogonal_kernel(
                                    ((y+0.5f) * rheight) * vertical;
     const spray::geom::ray ray = spray::geom::make_ray(src, direction);
 
-    std::uint32_t index = 0xFFFFFFFF;
-    spray::geom::collision col;
-    col.t = spray::util::inf();
-    for(std::size_t i=0; i<N; ++i)
-    {
-        const spray::geom::collision c = collide(ray, spheres[i], 0.0f);
-        if(!isinf(c.t) && c.t < col.t)
-        {
-            index = i;
-            col   = c;
-        }
-    }
+    const auto pix_idx_seed =
+        path_trace(ray, background, seeds[offset], 16, N, material, spheres);
 
-    spray::core::color pixel = background;
-    if(index != 0xFFFFFFFF)
-    {
-        const spray::core::material mat = material[index];
-        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
-                spray::geom::direction(ray), spray::geom::normal(col)));
-        pixel = color;
-        spray::core::A(pixel) = 1.0f;
-    }
-    img[offset] = pixel;
-    first_hit_obj[offset] = index;
+    img[offset] = (img[offset] * weight + thrust::get<0>(pix_idx_seed)) /
+                  (weight + 1);
+    first_hit_obj[offset] = thrust::get<1>(pix_idx_seed);
+    seeds[offset]         = thrust::get<2>(pix_idx_seed);
     return;
 }
 std::unique_ptr<camera_base> make_orthogonal_camera(
@@ -84,6 +69,7 @@ void orthogonal_camera::reset(spray::geom::point location,
                               std::size_t        width,
                               std::size_t        height)
 {
+    this->weight_  = 0u;
     this->width_   = width;
     this->height_  = height;
     this->rwidth_  = 1.0f / width;
@@ -111,6 +97,17 @@ void orthogonal_camera::reset(spray::geom::point location,
         this->scene_.resize(width * height);
         this->host_first_hit_obj_.resize(width * height);
         this->device_first_hit_obj_.resize(width * height);
+
+        this->device_seeds_.resize(width * height);
+        thrust::transform(
+                thrust::counting_iterator<std::uint32_t>(0),
+                thrust::counting_iterator<std::uint32_t>(width * height),
+                this->device_seeds_.begin(),
+                [] __device__ (const std::uint32_t n) {
+                    thrust::default_random_engine rng;
+                    rng.discard(n);
+                    return rng();
+                });
     }
 
     this->field_of_view_buf_ = this->field_of_view_;
@@ -190,19 +187,24 @@ void orthogonal_camera::render(const cudaStream_t stream,
                       std::ceil(double(bufarray.height()) / threads.y));
 
     spray::core::render_orthogonal_kernel<<<blocks, threads, 0, stream>>>(
+        this->weight_,
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->direction_, this->lower_left_, this->horizontal_, this->vertical_,
         wld.device_spheres().size(), wld_base.background(),
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),
-        thrust::device_pointer_cast(this->device_first_hit_obj_.data())
+        thrust::device_pointer_cast(this->device_first_hit_obj_.data()),
+        thrust::device_pointer_cast(this->device_seeds_.data())
         );
+    spray::util::cuda_assert(cudaPeekAtLastError());
     this->host_first_hit_obj_ = device_first_hit_obj_;
 
     spray::core::show_image(
            blocks, threads, stream, bufarray.array(), this->width_, this->height_,
            thrust::device_pointer_cast(this->scene_.data()));
+
+    this->weight_ = (this->weight_ == 0xFFFFFFFE) ? 0xFFFFFFFE : this->weight_+1;
     return;
 }
 

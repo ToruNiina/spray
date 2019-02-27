@@ -19,7 +19,7 @@ struct orthogonal_camera final : public camera_base
                       float              fov,
                       std::size_t        width,
                       std::size_t        height)
-        : name_(std::move(name))
+        : name_(std::move(name)), weight_(0u)
     {
         this->reset(location, direction, view_up, fov, width, height);
     }
@@ -135,6 +135,7 @@ struct orthogonal_camera final : public camera_base
     float field_of_view_;
     float rwidth_;
     float rheight_;
+    std::uint32_t weight_;
     std::size_t width_;
     std::size_t height_;
     spray::geom::point view_up_;
@@ -157,6 +158,7 @@ struct orthogonal_camera final : public camera_base
     // scene image
     thrust::device_vector<spray::core::color> scene_;
 
+    thrust::device_vector<std::uint32_t> device_seeds_;
     thrust::host_vector<std::uint32_t>   host_first_hit_obj_;
     thrust::device_vector<std::uint32_t> device_first_hit_obj_;
 
