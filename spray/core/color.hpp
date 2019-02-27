@@ -2,6 +2,7 @@
 #define SPRAY_CORE_COLOR_HPP
 #include <spray/util/cuda_math.hpp>
 #include <vector_types.h>
+#include <cstdint>
 
 namespace spray
 {
