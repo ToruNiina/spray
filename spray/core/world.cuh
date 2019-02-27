@@ -1,6 +1,7 @@
 #ifndef SPRAY_CORE_WORLD_CUH
 #define SPRAY_CORE_WORLD_CUH
 #include <spray/core/world_base.hpp>
+#include <spray/core/color.hpp>
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <vector>
@@ -20,7 +21,7 @@ class world : public world_base
 
   public:
 
-    world() = default;
+    world(): is_loaded_(false), bg_(make_color(1.0f, 1.0f, 1.0f)) {}
     ~world() override = default;
 
     sphere_type const&   sphere_at  (const std::size_t idx) const override
@@ -79,6 +80,8 @@ class world : public world_base
         return;
     }
 
+    color background() const noexcept override {return bg_;}
+
     bool update_gui();
 
     void open_window_for(const std::size_t idx)
@@ -107,6 +110,7 @@ class world : public world_base
   private:
 
     bool is_loaded_;
+    color bg_;
     std::vector<std::size_t>   sub_windows_;
     std::vector<material_type> material_buffer_;
     thrust::host_vector<sphere_type>   host_spheres_;

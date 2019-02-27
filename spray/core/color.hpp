@@ -1,7 +1,8 @@
 #ifndef SPRAY_CORE_COLOR_HPP
 #define SPRAY_CORE_COLOR_HPP
-#include <spray/util/cuda_util.hpp>
+#include <spray/util/cuda_math.hpp>
 #include <vector_types.h>
+#include <cstdint>
 
 namespace spray
 {
@@ -22,7 +23,7 @@ inline color make_color(float x, float y, float z, float w) noexcept
 SPRAY_HOST_DEVICE
 inline color make_color(float x, float y, float z) noexcept
 {
-    return color{float4{x, y, z, 0.0f}};
+    return color{float4{x, y, z, 1.0f}};
 }
 
 SPRAY_HOST_DEVICE inline float R(const color& c) noexcept {return c.rgba.x;}
@@ -76,6 +77,13 @@ inline color operator*(const color& lhs, const float rhs) noexcept
     return make_color(lhs.rgba.x * rhs, lhs.rgba.y * rhs,
                       lhs.rgba.z * rhs, lhs.rgba.w * rhs);
 }
+
+SPRAY_HOST_DEVICE
+inline color operator/(const color& lhs, const float rhs) noexcept
+{
+    return make_color(lhs.rgba.x / rhs, lhs.rgba.y / rhs,
+                      lhs.rgba.z / rhs, lhs.rgba.w / rhs);
+}
     
 SPRAY_HOST_DEVICE
 SPRAY_INLINE uchar4 make_pixel(spray::core::color col)
@@ -84,7 +92,7 @@ SPRAY_INLINE uchar4 make_pixel(spray::core::color col)
     pixel.x = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::R(col)) * 256, 0, 255));
     pixel.y = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::G(col)) * 256, 0, 255));
     pixel.z = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::B(col)) * 256, 0, 255));
-    pixel.w = std::uint8_t(spray::util::fclampf(sqrtf(spray::core::A(col)) * 256, 0, 255));
+    pixel.w = std::uint8_t(spray::util::fclampf(spray::core::A(col)        * 256, 0, 255));
     return pixel;
 }
 

@@ -1,4 +1,5 @@
 #include <spray/core/orthogonal_camera.cuh>
+#include <spray/core/path_tracing.cuh>
 #include <spray/core/show_image.cuh>
 #include <spray/core/save_image.hpp>
 #include <spray/core/world.cuh>
@@ -12,7 +13,7 @@ namespace core
 {
 
 __global__
-void render_orthogonal_kernel(
+void render_orthogonal_kernel(const std::uint32_t weight,
         const std::size_t width, const std::size_t height,
         const float      rwidth, const float      rheight,
         const spray::geom::point direction,
@@ -20,14 +21,33 @@ void render_orthogonal_kernel(
         const spray::geom::point horizontal,
         const spray::geom::point vertical,
         const std::size_t        N,
+        const spray::core::color background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img,
-        thrust::device_ptr<std::uint32_t> first_hit
-        );
+        thrust::device_ptr<spray::core::color> img,
+        thrust::device_ptr<std::uint32_t> first_hit_obj,
+        thrust::device_ptr<std::uint32_t> seeds)
+{
+    const int x = threadIdx.x + blockIdx.x * blockDim.x;
+    const int y = threadIdx.y + blockIdx.y * blockDim.y;
+    if(x >= width || y >= height) {return;}
 
+    const std::size_t offset = x + y * width;
 
+    const spray::geom::point src = lower_left +
+                                   ((x+0.5f) *  rwidth) * horizontal +
+                                   ((y+0.5f) * rheight) * vertical;
+    const spray::geom::ray ray = spray::geom::make_ray(src, direction);
 
+    const auto pix_idx_seed =
+        path_trace(ray, background, seeds[offset], 16, N, material, spheres);
+
+    img[offset] = (img[offset] * weight + thrust::get<0>(pix_idx_seed)) /
+                  (weight + 1);
+    first_hit_obj[offset] = thrust::get<1>(pix_idx_seed);
+    seeds[offset]         = thrust::get<2>(pix_idx_seed);
+    return;
+}
 std::unique_ptr<camera_base> make_orthogonal_camera(
         std::string        name,
         spray::geom::point location,
@@ -49,6 +69,7 @@ void orthogonal_camera::reset(spray::geom::point location,
                               std::size_t        width,
                               std::size_t        height)
 {
+    this->weight_  = 0u;
     this->width_   = width;
     this->height_  = height;
     this->rwidth_  = 1.0f / width;
@@ -76,6 +97,17 @@ void orthogonal_camera::reset(spray::geom::point location,
         this->scene_.resize(width * height);
         this->host_first_hit_obj_.resize(width * height);
         this->device_first_hit_obj_.resize(width * height);
+
+        this->device_seeds_.resize(width * height);
+        thrust::transform(
+                thrust::counting_iterator<std::uint32_t>(0),
+                thrust::counting_iterator<std::uint32_t>(width * height),
+                this->device_seeds_.begin(),
+                [] __device__ (const std::uint32_t n) {
+                    thrust::default_random_engine rng;
+                    rng.discard(n);
+                    return rng();
+                });
     }
 
     this->field_of_view_buf_ = this->field_of_view_;
@@ -112,7 +144,14 @@ bool orthogonal_camera::update_gui()
     ImGui::InputText("File name", filename_buf_.data(), 256);
     if(ImGui::Button("Save image as png"))
     {
-        const thrust::host_vector<uchar4> pixels = this->scene_;
+        const thrust::host_vector<spray::core::color> scene = this->scene_;
+        std::vector<uchar4> pixels; pixels.reserve(scene.size());
+        for(const auto& col : scene)
+        {
+            pixels.push_back(spray::core::make_pixel(col));
+        }
+        assert(pixels.size() == scene.size());
+
         save_image(this->width_, this->height_, pixels,
                    this->filename_buf_.data());
     }
@@ -124,8 +163,7 @@ bool orthogonal_camera::update_gui()
     return focused;
 }
 
-void orthogonal_camera::render(
-        const dim3 blocks, const dim3 threads, const cudaStream_t stream,
+void orthogonal_camera::render(const cudaStream_t stream,
         const world_base& wld_base, const buffer_array& bufarray)
 {
     const auto& wld = dynamic_cast<spray::core::world const&>(wld_base);
@@ -134,79 +172,39 @@ void orthogonal_camera::render(
         wld.load();
     }
 
+    cudaFuncAttributes attr;
+    spray::util::cuda_assert(cudaFuncGetAttributes(&attr, render_orthogonal_kernel));
+//     spray::log(spray::log_level::debug,
+//                "max number of threads per block allowed for the kernel is ",
+//                attr.maxThreadsPerBlock, '\n');
+
+    cudaDeviceProp prop;
+    spray::util::cuda_assert(cudaGetDeviceProperties(&prop, 0));
+
+    const auto warp_number = attr.maxThreadsPerBlock / prop.warpSize;
+    const dim3 threads(prop.warpSize, warp_number);
+    const dim3 blocks(std::ceil(double(bufarray.width())  / threads.x),
+                      std::ceil(double(bufarray.height()) / threads.y));
+
     spray::core::render_orthogonal_kernel<<<blocks, threads, 0, stream>>>(
+        this->weight_,
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->direction_, this->lower_left_, this->horizontal_, this->vertical_,
-        wld.device_spheres().size(),
+        wld.device_spheres().size(), wld_base.background(),
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),
-        thrust::device_pointer_cast(this->device_first_hit_obj_.data())
+        thrust::device_pointer_cast(this->device_first_hit_obj_.data()),
+        thrust::device_pointer_cast(this->device_seeds_.data())
         );
+    spray::util::cuda_assert(cudaPeekAtLastError());
     this->host_first_hit_obj_ = device_first_hit_obj_;
 
     spray::core::show_image(
            blocks, threads, stream, bufarray.array(), this->width_, this->height_,
            thrust::device_pointer_cast(this->scene_.data()));
-    return;
-}
 
-__global__
-void render_orthogonal_kernel(
-        const std::size_t width, const std::size_t height,
-        const float      rwidth, const float      rheight,
-        const spray::geom::point direction,
-        const spray::geom::point lower_left,
-        const spray::geom::point horizontal,
-        const spray::geom::point vertical,
-        const std::size_t        N,
-        thrust::device_ptr<const spray::core::material> material,
-        thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img,
-        thrust::device_ptr<std::uint32_t> first_hit_obj)
-{
-    const int x = threadIdx.x + blockIdx.x * blockDim.x;
-    const int y = threadIdx.y + blockIdx.y * blockDim.y;
-    if(x >= width || y >= height) {return;}
-
-    const std::size_t offset = x + y * width;
-
-    const spray::geom::point src = lower_left +
-                                   ((x+0.5f) *  rwidth) * horizontal +
-                                   ((y+0.5f) * rheight) * vertical;
-    const spray::geom::ray ray = spray::geom::make_ray(src, direction);
-
-    std::uint32_t index = 0xFFFFFFFF;
-    spray::geom::collision col;
-    col.t = spray::geom::inf();
-    for(std::size_t i=0; i<N; ++i)
-    {
-        const spray::geom::collision c = collide(ray, spheres[i], 0.0f);
-        if(!isinf(c.t) && c.t < col.t)
-        {
-            index = i;
-            col   = c;
-        }
-    }
-
-    uchar4 pixel;
-    if(index == 0xFFFFFFFF)
-    {
-        pixel.x = 0x00;
-        pixel.y = 0x00;
-        pixel.z = 0x00;
-        pixel.w = 0x00;
-    }
-    else
-    {
-        const spray::core::material mat = material[index];
-        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
-                spray::geom::direction(ray), spray::geom::normal(col)));
-
-        pixel = make_pixel(color);
-    }
-    img[offset] = pixel;
-    first_hit_obj[offset] = index;
+    this->weight_ = (this->weight_ == 0xFFFFFFFE) ? 0xFFFFFFFE : this->weight_+1;
     return;
 }
 

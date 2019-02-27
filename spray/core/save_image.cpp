@@ -7,7 +7,7 @@ namespace core
 {
 
 void save_image(const std::size_t w, const std::size_t h,
-                const thrust::host_vector<uchar4>& pixels,
+                const std::vector<uchar4>& pixels,
                 const char* filename)
 {
     assert(pixels.size() == w * h);

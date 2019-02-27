@@ -1,11 +1,12 @@
 #include <spray/glad/load.hpp>
 #include <spray/glfw/init.hpp>
 #include <spray/glfw/window.hpp>
-#include <spray/core/buffer_array.hpp>
 
+#include <spray/core/buffer_array.hpp>
 #include <spray/core/camera_base.hpp>
 #include <spray/core/world_base.hpp>
 
+#include <spray/util/log.hpp>
 #include <spray/xyz/xyz.hpp>
 
 #include <chrono>
@@ -35,6 +36,31 @@ int main(int argc, char **argv)
     spray::glfw::swap_interval(1);
 
     spray::core::buffer_array bufarray(spray::glfw::get_frame_buffer_size(window));
+
+    int number_of_device = 0;
+    spray::util::cuda_assert(cudaGetDeviceCount(std::addressof(number_of_device)));
+
+    if(number_of_device < 1)
+    {
+        spray::log(spray::log_level::error, "no CUDA device found.\n");
+        return 1;
+    }
+
+    cudaDeviceProp prop;
+    spray::util::cuda_assert(cudaGetDeviceProperties(std::addressof(prop), 0));
+    spray::log(spray::log_level::info, "CUDA device ", prop.name, " found.\n");
+    spray::log(spray::log_level::info, "Compute capability ",
+               prop.major, '.', prop.minor, ".\n");
+//     spray::log(spray::log_level::info, "Register size per block ",
+//                prop.regsPerBlock, ".\n");
+//     spray::log(spray::log_level::info, "max threads per block is ",
+//                prop.maxThreadsPerBlock, ".\n");
+//     spray::log(spray::log_level::info, "max threads dimension ",
+//                prop.maxThreadsDim[0], 'x', prop.maxThreadsDim[1], 'x',
+//                prop.maxThreadsDim[2], ".\n");
+//     spray::log(spray::log_level::info, "max size of each dimension of a grid ",
+//                prop.maxGridSize[0], 'x', prop.maxGridSize[1], 'x',
+//                prop.maxGridSize[2], ".\n");
 
     cudaStream_t stream;
     spray::util::cuda_assert(
@@ -68,7 +94,34 @@ int main(int argc, char **argv)
             wld->push_back(spray::geom::make_sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
                 spray::core::material{
-                    spray::core::make_color(1.0, 1.0, 1.0),
+                    spray::core::make_color(0.8, 0.8, 0.8),
+                    spray::core::make_color(0.0, 0.0, 0.0)
+                });
+        }
+        else if(p.name == "N")
+        {
+            wld->push_back(spray::geom::make_sphere(
+                spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
+                spray::core::material{
+                    spray::core::make_color(0.0, 0.0, 0.8),
+                    spray::core::make_color(0.0, 0.0, 0.0)
+                });
+        }
+        else if(p.name == "O")
+        {
+            wld->push_back(spray::geom::make_sphere(
+                spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
+                spray::core::material{
+                    spray::core::make_color(0.8, 0.0, 0.0),
+                    spray::core::make_color(0.0, 0.0, 0.0)
+                });
+        }
+        else if(p.name == "P")
+        {
+            wld->push_back(spray::geom::make_sphere(
+                spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
+                spray::core::material{
+                    spray::core::make_color(0.8, 0.8, 0.0),
                     spray::core::make_color(0.0, 0.0, 0.0)
                 });
         }
@@ -128,7 +181,6 @@ int main(int argc, char **argv)
                     return;
                 }
                 const auto idx = wp->camera->first_hit_object(w, h);
-                if(idx == 0xFFFFFFFF){return;}
                 wp->world->open_window_for(idx);
             }
             return;
@@ -153,11 +205,7 @@ int main(int argc, char **argv)
 
         bufsize = spray::glfw::get_frame_buffer_size(window);
 
-        const dim3 threads(32, 32);
-        const dim3 blocks (static_cast<int>(std::ceil(double(bufsize.first)  / threads.x)),
-                           static_cast<int>(std::ceil(double(bufsize.second) / threads.y)));
-
-        cam->render(blocks, threads, stream, *wld, bufarray);
+        cam->render(stream, *wld, bufarray);
         spray::core::blit_framebuffer(bufarray);
 
         bool is_focused = false;

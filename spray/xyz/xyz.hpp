@@ -32,7 +32,8 @@ struct reader
         std::ifstream ifs(filename_);
         if(!ifs.good())
         {
-            spray::log(spray::log_level::error, "file open error \"{}\"", filename_);
+            spray::log(spray::log_level::error,
+                       "file open error \"", this->filename_, "\"");
             throw std::runtime_error("Error: file open error: " + filename_);
         }
         this->snapshots_.push_back(ifs.tellg());
@@ -71,8 +72,9 @@ struct reader
         if(iss.fail()) // check `num` is successfully loaded
         {
             const auto ln = this->count_number(ifs);
-            spray::log(spray::log_level::error, "file {} line {}: expected "
-                       "integer variable, got {}", this->filename_, ln, number);
+            spray::log(spray::log_level::error, "file ", this->filename_,
+                       " line ", ln, ": expected integer variable, got ",
+                       number);
             std::exit(EXIT_FAILURE);
         }
 
@@ -104,8 +106,9 @@ struct reader
         if(iss.fail()) // check `num` is successfully loaded
         {
             const auto ln = this->count_number(ifs);
-            spray::log(spray::log_level::error, "file {} line {}: expected "
-                       "integer variable, got {}", this->filename_, ln, number);
+            spray::log(spray::log_level::error, "file ", this->filename_,
+                       " line ", ln, ": expected integer variable, got ",
+                       number);
             std::exit(EXIT_FAILURE);
         }
         for(std::size_t i=0; i<num; ++i)

@@ -12,7 +12,7 @@ namespace glfw
 inline auto init()
 {
     glfwSetErrorCallback([](int err, const char* desc) noexcept -> void {
-        spray::log(spray::log_level::error, "({}): {}", err, desc);
+        spray::log(spray::log_level::error, "(", err, "): ", desc);
         return;
     });
 
