@@ -77,6 +77,13 @@ inline color operator*(const color& lhs, const float rhs) noexcept
     return make_color(lhs.rgba.x * rhs, lhs.rgba.y * rhs,
                       lhs.rgba.z * rhs, lhs.rgba.w * rhs);
 }
+
+SPRAY_HOST_DEVICE
+inline color operator/(const color& lhs, const float rhs) noexcept
+{
+    return make_color(lhs.rgba.x / rhs, lhs.rgba.y / rhs,
+                      lhs.rgba.z / rhs, lhs.rgba.w / rhs);
+}
     
 SPRAY_HOST_DEVICE
 SPRAY_INLINE uchar4 make_pixel(spray::core::color col)
