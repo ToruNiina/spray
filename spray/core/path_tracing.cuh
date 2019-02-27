@@ -55,18 +55,17 @@ hit(spray::geom::ray r, const float start, const std::size_t N,
  */
 
 // {pixel, first-hit-object, next-seed}
+template<typename RNG>
 __device__ __inline__
-thrust::tuple<spray::core::color, std::uint32_t, std::uint32_t>
+thrust::pair<spray::core::color, std::uint32_t>
 path_trace(const spray::geom::ray   ray,
            const spray::core::color background,
-           const std::uint32_t      seed,
            const std::uint32_t      depth,
            const std::size_t        N,
            const thrust::device_ptr<const spray::core::material> material,
-           const thrust::device_ptr<const spray::geom::sphere>   spheres)
+           const thrust::device_ptr<const spray::geom::sphere>   spheres,
+           RNG& rng)
 {
-    thrust::default_random_engine rng(seed);
-
     std::uint32_t          index;
     spray::geom::collision col;
     thrust::tie(col, index) = spray::core::hit(ray, 0.0f, N, spheres);
@@ -92,7 +91,7 @@ path_trace(const spray::geom::ray   ray,
     }
     intensity = intensity + albedo * background;
 
-    return thrust::make_tuple(intensity, first_hit, rng());
+    return thrust::make_pair(intensity, first_hit);
 }
 
 
