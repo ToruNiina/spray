@@ -20,15 +20,49 @@ void render_orthogonal_kernel(
         const spray::geom::point horizontal,
         const spray::geom::point vertical,
         const std::size_t        N,
-        const uchar4             background,
+        const spray::core::color background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img,
-        thrust::device_ptr<std::uint32_t> first_hit
-        );
+        thrust::device_ptr<spray::core::color> img,
+        thrust::device_ptr<std::uint32_t> first_hit_obj)
+{
+    const int x = threadIdx.x + blockIdx.x * blockDim.x;
+    const int y = threadIdx.y + blockIdx.y * blockDim.y;
+    if(x >= width || y >= height) {return;}
 
+    const std::size_t offset = x + y * width;
 
+    const spray::geom::point src = lower_left +
+                                   ((x+0.5f) *  rwidth) * horizontal +
+                                   ((y+0.5f) * rheight) * vertical;
+    const spray::geom::ray ray = spray::geom::make_ray(src, direction);
 
+    std::uint32_t index = 0xFFFFFFFF;
+    spray::geom::collision col;
+    col.t = spray::util::inf();
+    for(std::size_t i=0; i<N; ++i)
+    {
+        const spray::geom::collision c = collide(ray, spheres[i], 0.0f);
+        if(!isinf(c.t) && c.t < col.t)
+        {
+            index = i;
+            col   = c;
+        }
+    }
+
+    spray::core::color pixel = background;
+    if(index != 0xFFFFFFFF)
+    {
+        const spray::core::material mat = material[index];
+        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
+                spray::geom::direction(ray), spray::geom::normal(col)));
+        pixel = color;
+        spray::core::A(pixel) = 1.0f;
+    }
+    img[offset] = pixel;
+    first_hit_obj[offset] = index;
+    return;
+}
 std::unique_ptr<camera_base> make_orthogonal_camera(
         std::string        name,
         spray::geom::point location,
@@ -113,7 +147,14 @@ bool orthogonal_camera::update_gui()
     ImGui::InputText("File name", filename_buf_.data(), 256);
     if(ImGui::Button("Save image as png"))
     {
-        const thrust::host_vector<uchar4> pixels = this->scene_;
+        const thrust::host_vector<spray::core::color> scene = this->scene_;
+        std::vector<uchar4> pixels; pixels.reserve(scene.size());
+        for(const auto& col : scene)
+        {
+            pixels.push_back(spray::core::make_pixel(col));
+        }
+        assert(pixels.size() == scene.size());
+
         save_image(this->width_, this->height_, pixels,
                    this->filename_buf_.data());
     }
@@ -151,7 +192,7 @@ void orthogonal_camera::render(const cudaStream_t stream,
     spray::core::render_orthogonal_kernel<<<blocks, threads, 0, stream>>>(
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->direction_, this->lower_left_, this->horizontal_, this->vertical_,
-        wld.device_spheres().size(), make_pixel(wld_base.background()),
+        wld.device_spheres().size(), wld_base.background(),
         thrust::device_pointer_cast(wld.device_materials().data()),
         thrust::device_pointer_cast(wld.device_spheres().data()),
         thrust::device_pointer_cast(this->scene_.data()),
@@ -162,59 +203,6 @@ void orthogonal_camera::render(const cudaStream_t stream,
     spray::core::show_image(
            blocks, threads, stream, bufarray.array(), this->width_, this->height_,
            thrust::device_pointer_cast(this->scene_.data()));
-    return;
-}
-
-__global__
-void render_orthogonal_kernel(
-        const std::size_t width, const std::size_t height,
-        const float      rwidth, const float      rheight,
-        const spray::geom::point direction,
-        const spray::geom::point lower_left,
-        const spray::geom::point horizontal,
-        const spray::geom::point vertical,
-        const std::size_t        N,
-        const uchar4             background,
-        thrust::device_ptr<const spray::core::material> material,
-        thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4> img,
-        thrust::device_ptr<std::uint32_t> first_hit_obj)
-{
-    const int x = threadIdx.x + blockIdx.x * blockDim.x;
-    const int y = threadIdx.y + blockIdx.y * blockDim.y;
-    if(x >= width || y >= height) {return;}
-
-    const std::size_t offset = x + y * width;
-
-    const spray::geom::point src = lower_left +
-                                   ((x+0.5f) *  rwidth) * horizontal +
-                                   ((y+0.5f) * rheight) * vertical;
-    const spray::geom::ray ray = spray::geom::make_ray(src, direction);
-
-    std::uint32_t index = 0xFFFFFFFF;
-    spray::geom::collision col;
-    col.t = spray::util::inf();
-    for(std::size_t i=0; i<N; ++i)
-    {
-        const spray::geom::collision c = collide(ray, spheres[i], 0.0f);
-        if(!isinf(c.t) && c.t < col.t)
-        {
-            index = i;
-            col   = c;
-        }
-    }
-
-    uchar4 pixel = background;
-    if(index != 0xFFFFFFFF)
-    {
-        const spray::core::material mat = material[index];
-        const spray::core::color  color = mat.albedo * fabsf(spray::geom::dot(
-                spray::geom::direction(ray), spray::geom::normal(col)));
-        pixel = make_pixel(color);
-        pixel.w = 0xFF;
-    }
-    img[offset] = pixel;
-    first_hit_obj[offset] = index;
     return;
 }
 

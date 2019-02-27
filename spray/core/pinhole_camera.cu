@@ -20,7 +20,7 @@ namespace core
 {
 
 __global__
-void render_kernel(
+void render_kernel(const std::uint32_t weight,
         const std::size_t width, const std::size_t height,
         const float      rwidth, const float      rheight,
         const spray::geom::point location,
@@ -31,9 +31,9 @@ void render_kernel(
         const spray::core::color background,
         thrust::device_ptr<const spray::core::material> material,
         thrust::device_ptr<const spray::geom::sphere>   spheres,
-        thrust::device_ptr<uchar4>        img,
-        thrust::device_ptr<std::uint32_t> first_hit_obj,
-        thrust::device_ptr<std::uint32_t> seeds)
+        thrust::device_ptr<spray::core::color> img,
+        thrust::device_ptr<std::uint32_t>      first_hit_obj,
+        thrust::device_ptr<std::uint32_t>      seeds)
 {
     const int x = threadIdx.x + blockIdx.x * blockDim.x;
     const int y = threadIdx.y + blockIdx.y * blockDim.y;
@@ -46,10 +46,11 @@ void render_kernel(
                                    ((y+0.5f) * rheight) * vertical;
     const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
 
-    const thrust::tuple<uchar4, std::uint32_t, std::uint32_t> pix_idx_seed =
+    const auto pix_idx_seed =
         path_trace(ray, background, seeds[offset], 16, N, material, spheres);
 
-    img[offset]           = thrust::get<0>(pix_idx_seed);
+    img[offset] = (img[offset] * weight + thrust::get<0>(pix_idx_seed)) /
+                  (weight + 1);
     first_hit_obj[offset] = thrust::get<1>(pix_idx_seed);
     seeds[offset]         = thrust::get<2>(pix_idx_seed);
     return;
@@ -76,6 +77,7 @@ void pinhole_camera::reset(spray::geom::point location,
                            std::size_t        width,
                            std::size_t        height)
 {
+    this->weight_  = 0u;
     this->width_   = width;
     this->height_  = height;
     this->rwidth_  = 1.0f / width;
@@ -152,7 +154,14 @@ bool pinhole_camera::update_gui()
     ImGui::InputText("File name", filename_buf_.data(), 256);
     if(ImGui::Button("Save image as png"))
     {
-        const thrust::host_vector<uchar4> pixels = this->scene_;
+        const thrust::host_vector<spray::core::color> scene = this->scene_;
+        std::vector<uchar4> pixels; pixels.reserve(scene.size());
+        for(const auto& col : scene)
+        {
+            pixels.push_back(spray::core::make_pixel(col));
+        }
+        assert(pixels.size() == scene.size());
+
         save_image(this->width_, this->height_, pixels,
                    this->filename_buf_.data());
     }
@@ -187,7 +196,7 @@ void pinhole_camera::render(const cudaStream_t stream,
     const dim3 blocks(std::ceil(double(bufarray.width())  / threads.x),
                       std::ceil(double(bufarray.height()) / threads.y));
 
-    render_kernel<<<blocks, threads, 0, stream>>>(
+    render_kernel<<<blocks, threads, 0, stream>>>(this->weight_,
         this->width_, this->height_, this->rwidth_, this->rheight_,
         this->location_, this->lower_left_, this->horizontal_, this->vertical_,
         wld.device_spheres().size(), wld.background(),
@@ -206,6 +215,7 @@ void pinhole_camera::render(const cudaStream_t stream,
        thrust::device_pointer_cast(this->scene_.data()));
     spray::util::cuda_assert(cudaPeekAtLastError());
 
+    this->weight_ = (this->weight_ == 0xFFFFFFFE) ? 0xFFFFFFFE : this->weight_+1;
     return;
 }
 
