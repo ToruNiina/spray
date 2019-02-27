@@ -8,7 +8,7 @@ set(SPRAY_CPP_SRC
 set(SPRAY_CUDA_SRC
     ${PROJECT_SOURCE_DIR}/spray/core/world.cu
     ${PROJECT_SOURCE_DIR}/spray/core/pinhole_camera.cu
-    ${PROJECT_SOURCE_DIR}/spray/core/orthogonal_camera.cu
+#     ${PROJECT_SOURCE_DIR}/spray/core/orthogonal_camera.cu
     ${PROJECT_SOURCE_DIR}/spray/core/show_image.cu
 )
 set(CUDA_NVCC_FLAGS "-std=c++14;-O2;--expt-extended-lambda")
