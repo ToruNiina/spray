@@ -1,10 +1,37 @@
 ![logo](https://github.com/ToruNiina/spray/blob/misc/misc/logo-full.png)
 
-Ray tracer for molecules.
+# Screenshot
+
+![demo](https://github.com/ToruNiina/spray/blob/misc/misc/screenshot.png)
+
+# What is it?
+
+A molecular viewer/renderer.
+
+spray based on the path-tracing method that is a kind of Monte-Carlo ray-tracing
+algorithm.
+
+# What's next
+
+- [x] pinhole camera
+- [x] orthogonal camera
+- [x] spherical object
+- [ ] cylindrical object
+- [ ] triangular object
+- [ ] spatial indexing
+- [x] emission
+- [x] lambert material
+- [ ] metalic material
+- [ ] transparent material
+- [ ] volume rendering
+- [ ] config file
+- [ ] save state into a file
 
 # Installation
 
 It currently supports Linux only.
+
+Tested only on Ubuntu 16.04 + CUDA 9.2 + OpenGL 4.5.
 
 ## Prerequisites
 
@@ -15,7 +42,6 @@ The following packages are required.
 - OpenGL 4.5 or later
 - [CMake](https://cmake.org/)
 - git
-- wget
 
 ## Depencency
 
