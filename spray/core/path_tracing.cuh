@@ -4,6 +4,7 @@
 #include <spray/geom/sphere.hpp>
 #include <spray/geom/ray.hpp>
 #include <spray/geom/collide.hpp>
+#include <spray/geom/lambertian.cuh>
 #include <spray/core/color.hpp>
 #include <spray/core/material.hpp>
 #include <thrust/device_ptr.h>
@@ -63,23 +64,35 @@ path_trace(const spray::geom::ray   ray,
            const thrust::device_ptr<const spray::geom::sphere>   spheres)
 {
     thrust::default_random_engine rng(seed);
-    uchar4 pixel = make_pixel(background);
 
-    std::uint32_t index;
+    std::uint32_t          index;
     spray::geom::collision col;
-    thrust::tie(col, index) = hit(ray, 0.0f, N, spheres);
+    thrust::tie(col, index) = spray::core::hit(ray, 0.0f, N, spheres);
+    const std::uint32_t first_hit = index;
 
-    if(index != 0xFFFFFFFF)
+    spray::core::color intensity = spray::core::make_color(0.0f, 0.0f, 0.0f, 1.0f);
+    spray::core::color albedo    = spray::core::make_color(1.0f, 1.0f, 1.0f, 1.0f);
+    spray::geom::ray next_ray = ray;
+
+    for(std::uint32_t i=0; i<depth; ++i)
     {
-        const spray::core::material mat = material[index];
-        const spray::core::color    clr = mat.albedo * fabsf(spray::geom::dot(
-                spray::geom::direction(ray), spray::geom::normal(col)));
-        pixel = make_pixel(clr);
-        pixel.w = 0xFF;
-    }
+        if(index == 0xFFFFFFFF) {break;}
 
-    return thrust::make_tuple(pixel, index, rng());
+        const spray::core::material mat = material[index];
+        intensity = intensity + albedo * mat.emission;
+        albedo    =             albedo * mat.albedo;
+
+        next_ray = spray::geom::scatter_lambertian(next_ray,
+                spray::geom::ray_at(next_ray, col.t),
+                spray::geom::make_point(col.n.x, col.n.y, col.n.z), rng);
+
+        thrust::tie(col, index) = spray::core::hit(next_ray, 0.0f, N, spheres);
+    }
+    intensity = intensity + albedo * background;
+
+    return thrust::make_tuple(make_pixel(intensity), first_hit, rng());
 }
+
 
 } // core
 } // spray
