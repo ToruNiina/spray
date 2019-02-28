@@ -35,6 +35,12 @@ SPRAY_INLINE float inf() noexcept
 #endif
 }
 
+SPRAY_HOST_DEVICE
+constexpr inline float epsilon() noexcept
+{
+    return 1.192e-7;
+}
+
 
 } // util
 } // spray

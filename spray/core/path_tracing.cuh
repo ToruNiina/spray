@@ -87,7 +87,8 @@ path_trace(const spray::geom::ray   ray,
                 spray::geom::ray_at(next_ray, col.t),
                 spray::geom::make_point(col.n.x, col.n.y, col.n.z), rng);
 
-        thrust::tie(col, index) = spray::core::hit(next_ray, 0.0f, N, spheres);
+        thrust::tie(col, index) = spray::core::hit(
+                next_ray, spray::util::epsilon(), N, spheres);
     }
     intensity = intensity + albedo * background;
 
