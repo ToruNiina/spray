@@ -62,6 +62,7 @@ int main(int argc, char **argv)
 //                prop.maxGridSize[0], 'x', prop.maxGridSize[1], 'x',
 //                prop.maxGridSize[2], ".\n");
 
+
     cudaStream_t stream;
     spray::util::cuda_assert(
             cudaStreamCreateWithFlags(&stream, cudaStreamDefault));
@@ -188,9 +189,14 @@ int main(int argc, char **argv)
 
 
     IMGUI_CHECKVERSION();
+    spray::log(spray::log_level::info, "ImGui v", ImGui::GetVersion(), '\n');
+
     ImGui::CreateContext();
 
     ImGui::StyleColorsDark();
+    auto& style = ImGui::GetStyle();
+    style.FrameRounding  = 0.0f;
+    style.WindowRounding = 0.0f;
 
     ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
     ImGui_ImplOpenGL3_Init(/*GLSL version*/"#version 130");
