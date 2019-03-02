@@ -33,19 +33,20 @@ void render_orthogonal_kernel(const std::uint32_t weight,
     if(x >= width || y >= height) {return;}
 
     const std::size_t offset = x + y * width;
+    thrust::default_random_engine rng(seeds[offset]);
+    thrust::uniform_real_distribution<float> uni(0.0f, 1.0f);
 
     const spray::geom::point src = lower_left +
-                                   ((x+0.5f) *  rwidth) * horizontal +
-                                   ((y+0.5f) * rheight) * vertical;
+                                   ((x+uni(rng)) *  rwidth) * horizontal +
+                                   ((y+uni(rng)) * rheight) * vertical;
     const spray::geom::ray ray = spray::geom::make_ray(src, direction);
 
     const auto pix_idx_seed =
-        path_trace(ray, background, seeds[offset], 16, N, material, spheres);
+        path_trace(ray, background, 16, N, material, spheres, rng);
 
-    img[offset] = (img[offset] * weight + thrust::get<0>(pix_idx_seed)) /
-                  (weight + 1);
-    first_hit_obj[offset] = thrust::get<1>(pix_idx_seed);
-    seeds[offset]         = thrust::get<2>(pix_idx_seed);
+    img[offset] = (img[offset] * weight + pix_idx_seed.first) / (weight + 1);
+    first_hit_obj[offset] = pix_idx_seed.second;
+    seeds[offset]         = rng();
     return;
 }
 std::unique_ptr<camera_base> make_orthogonal_camera(
