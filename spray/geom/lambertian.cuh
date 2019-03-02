@@ -15,7 +15,7 @@ point pick_on_sphere(RNG& rng)
     const float x = nrm(rng);
     const float y = nrm(rng);
     const float z = nrm(rng);
-    const float r = 1.0f / sqrt(x*x + y*y + z*z);
+    const float r = 1.0f / sqrtf(x*x + y*y + z*z);
     return make_point(x*r, y*r, z*r);
 }
 

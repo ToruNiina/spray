@@ -37,7 +37,7 @@ SPRAY_INLINE collision collide(const ray&  r, const sphere& sph,
     {
         return collision{spray::util::inf(), make_float3(0.0f, 0.0f, 0.0f)};
     }
-    const auto sqrt_d = sqrt(d);
+    const auto sqrt_d = sqrtf(d);
     const auto t1 = -b - sqrt_d;
     if(t_min <= t1 && t1 <= t_max)
     {
