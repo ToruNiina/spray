@@ -41,12 +41,11 @@ void render_kernel(const std::uint32_t weight,
 
     const std::size_t offset = x + y * width;
     thrust::default_random_engine rng(seeds[offset]);
-
     thrust::uniform_real_distribution<float> uni(0.0f, 1.0f);
 
     const spray::geom::point dst = lower_left +
-                                   ((x + uni(rng)) *  rwidth) * horizontal +
-                                   ((y + uni(rng)) * rheight) * vertical;
+                                   ((float(x) + uni(rng)) *  rwidth) * horizontal +
+                                   ((float(y) + uni(rng)) * rheight) * vertical;
     const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
 
     const auto pix_idx = path_trace(ray, background, 16, N, material, spheres, rng);
