@@ -157,6 +157,7 @@ bool orthogonal_camera::update_gui()
                    this->filename_buf_.data());
     }
 
+    ImGui::Text("Currently %d frames accumurated", this->weight_);
     const auto framerate = ImGui::GetIO().Framerate;
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                 1000.0f / framerate, framerate);
