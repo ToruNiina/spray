@@ -84,7 +84,7 @@ path_trace(const spray::geom::ray   ray,
         albedo    =             albedo * mat.albedo;
 
         next_ray = spray::geom::scatter_lambertian(next_ray,
-            spray::geom::ray_at(next_ray, col.t * (1.0f - spray::util::epsilon())),
+            spray::geom::ray_at(next_ray, col.t * (0.999)),
             spray::geom::make_point(col.n.x, col.n.y, col.n.z), rng);
 
         thrust::tie(col, index) = spray::core::hit(
