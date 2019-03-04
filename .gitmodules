@@ -1,0 +1,3 @@
+[submodule "extlib/toml11"]
+	path = extlib/toml11
+	url = git@github.com:ToruNiina/toml11.git
