@@ -23,7 +23,7 @@ template<typename RNG>
 __device__ __inline__
 ray scatter_lambertian(ray r, point c, point n, RNG& rng)
 {
-    return make_ray(c, n + pick_on_sphere(rng));
+    return ray(c, n + pick_on_sphere(rng));
 }
 
 } // geom

@@ -39,7 +39,7 @@ void render_orthogonal_kernel(const std::uint32_t weight,
     const spray::geom::point src = lower_left +
                                    ((x+uni(rng)) *  rwidth) * horizontal +
                                    ((y+uni(rng)) * rheight) * vertical;
-    const spray::geom::ray ray = spray::geom::make_ray(src, direction);
+    const spray::geom::ray ray(src, direction);
 
     const auto pix_idx_seed =
         path_trace(ray, background, 16, N, material, spheres, rng);

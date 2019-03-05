@@ -46,7 +46,7 @@ void render_kernel(const std::uint32_t weight,
     const spray::geom::point dst = lower_left +
                                    ((float(x) + uni(rng)) *  rwidth) * horizontal +
                                    ((float(y) + uni(rng)) * rheight) * vertical;
-    const spray::geom::ray ray = spray::geom::make_ray(location, dst - location);
+    const spray::geom::ray ray(location, dst - location);
 
     const auto pix_idx = path_trace(ray, background, 16, N, material, spheres, rng);
 
