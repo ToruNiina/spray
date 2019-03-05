@@ -9,27 +9,21 @@ namespace geom
 
 struct ray
 {
-    point org;
-    point dir;
+    point origin;
+    point direction;
 };
 
-SPRAY_HOST_DEVICE inline point const& origin(const ray& r) noexcept {return r.org;}
-SPRAY_HOST_DEVICE inline point&       origin(ray& r)       noexcept {return r.org;}
-SPRAY_HOST_DEVICE inline point const& direction(const ray& r) noexcept {return r.dir;}
-SPRAY_HOST_DEVICE inline point&       direction(ray& r)       noexcept {return r.dir;}
-
 SPRAY_HOST_DEVICE
-inline ray make_ray(const point& origin, const point& direction) noexcept
+inline ray make_ray(const point& ori, const point& dir) noexcept
 {
-    return ray{origin, direction * (1.0f / len(direction))};
+    return ray{ori, unit(dir)};
 }
 
 SPRAY_HOST_DEVICE
 inline point ray_at(const ray& r, const float t) noexcept
 {
-    return r.org + r.dir * t;
+    return r.origin + r.direction * t;
 }
-
 
 } // geom
 } // spray

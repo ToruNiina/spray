@@ -29,8 +29,8 @@ SPRAY_DEVICE
 SPRAY_INLINE collision collide(const ray&  r, const sphere& sph,
     const float t_min, const float t_max = spray::util::inf()) noexcept
 {
-    const auto oc = origin(r) - center(sph);
-    const auto b  = dot(oc, direction(r));
+    const auto oc = r.origin - center(sph);
+    const auto b  = dot(oc, r.direction);
     const auto c  = len_sq(oc) - radius(sph) * radius(sph);
     const auto d  = b * b - c;
     if(d < 0.0)
