@@ -13,12 +13,12 @@ struct ray
     ray(const point& ori, const point& dir) noexcept
         : origin(ori), direction(unit(dir))
     {}
-    SPRAY_HOST_DEVICE ray() = default;
-    SPRAY_HOST_DEVICE ray(const ray&) = default;
-    SPRAY_HOST_DEVICE ray(ray&&)      = default;
-    SPRAY_HOST_DEVICE ray& operator=(const ray&) = default;
-    SPRAY_HOST_DEVICE ray& operator=(ray&&)      = default;
-    SPRAY_HOST_DEVICE ~ray() = default;
+    ray() = default;
+    ray(const ray&) = default;
+    ray(ray&&)      = default;
+    ray& operator=(const ray&) = default;
+    ray& operator=(ray&&)      = default;
+    ~ray() = default;
 
     point origin;
     point direction;
