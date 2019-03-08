@@ -18,12 +18,12 @@ struct point
 SPRAY_HOST_DEVICE
 inline point make_point(float x, float y, float z, float w) noexcept
 {
-    return point{float4{x, y, z, w}};
+    return point{make_float4(x, y, z, w)};
 }
 SPRAY_HOST_DEVICE
 inline point make_point(float x, float y, float z) noexcept
 {
-    return point{float4{x, y, z, 0.0f}};
+    return point{make_float4(x, y, z, 0.0f)};
 }
 
 SPRAY_HOST_DEVICE inline float X(const point& p) noexcept {return p.data.x;}
