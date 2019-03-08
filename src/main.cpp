@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     {
         if(p.name == "C")
         {
-            wld->push_back(spray::geom::make_sphere(
+            wld->push_back(spray::geom::sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.7f),
                 spray::core::material{
                     spray::core::make_color(0.5, 0.5, 0.5),
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         }
         else if(p.name == "H")
         {
-            wld->push_back(spray::geom::make_sphere(
+            wld->push_back(spray::geom::sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
                 spray::core::material{
                     spray::core::make_color(0.8, 0.8, 0.8),
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
         }
         else if(p.name == "N")
         {
-            wld->push_back(spray::geom::make_sphere(
+            wld->push_back(spray::geom::sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
                 spray::core::material{
                     spray::core::make_color(0.0, 0.0, 0.8),
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
         }
         else if(p.name == "O")
         {
-            wld->push_back(spray::geom::make_sphere(
+            wld->push_back(spray::geom::sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
                 spray::core::material{
                     spray::core::make_color(0.8, 0.0, 0.0),
@@ -119,7 +119,7 @@ int main(int argc, char **argv)
         }
         else if(p.name == "P")
         {
-            wld->push_back(spray::geom::make_sphere(
+            wld->push_back(spray::geom::sphere(
                 spray::geom::make_point(p.vec[0], p.vec[1], p.vec[2]), 1.1f),
                 spray::core::material{
                     spray::core::make_color(0.8, 0.8, 0.0),
