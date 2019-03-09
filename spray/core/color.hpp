@@ -84,6 +84,15 @@ inline color operator/(const color& lhs, const float rhs) noexcept
     return make_color(lhs.rgba.x / rhs, lhs.rgba.y / rhs,
                       lhs.rgba.z / rhs, lhs.rgba.w / rhs);
 }
+
+SPRAY_HOST_DEVICE
+SPRAY_INLINE color gamma_correction(color col, float gamma) noexcept
+{
+    return make_color(powf(spray::core::R(col), 1.0f / gamma),
+                      powf(spray::core::G(col), 1.0f / gamma),
+                      powf(spray::core::B(col), 1.0f / gamma),
+                      spray::core::A(col));
+}
     
 SPRAY_HOST_DEVICE
 SPRAY_INLINE uchar4 make_pixel(spray::core::color col)
