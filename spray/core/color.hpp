@@ -18,12 +18,12 @@ struct color
 SPRAY_HOST_DEVICE
 inline color make_color(float x, float y, float z, float w) noexcept
 {
-    return color{float4{x, y, z, w}};
+    return color{make_float4(x, y, z, w)};
 }
 SPRAY_HOST_DEVICE
 inline color make_color(float x, float y, float z) noexcept
 {
-    return color{float4{x, y, z, 1.0f}};
+    return color{make_float4(x, y, z, 1.0f)};
 }
 
 SPRAY_HOST_DEVICE inline float R(const color& c) noexcept {return c.rgba.x;}
