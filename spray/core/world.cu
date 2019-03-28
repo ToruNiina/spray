@@ -1,5 +1,6 @@
 #include <spray/core/world.cuh>
 #include <imgui.h>
+#include <algorithm>
 
 namespace spray
 {
@@ -51,19 +52,9 @@ bool world::update_gui()
             ImGui::End();
         }
     }
-
-    // <algorithm> is not compatible with cuda. this is a re-implementation.
-    const auto find = [](auto first, auto last, auto elem) {
-        for(; first != last; ++first)
-        {
-            if(*first == elem){return first;}
-        }
-        return first;
-    };
-
     for(const auto rm : remove_list)
     {
-        const auto pos = find(sub_windows_.begin(), sub_windows_.end(), rm);
+        const auto pos = std::find(sub_windows_.begin(), sub_windows_.end(), rm);
         sub_windows_.erase(pos);
     }
     return is_focused;
