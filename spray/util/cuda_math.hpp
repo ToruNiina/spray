@@ -21,6 +21,15 @@ SPRAY_INLINE float fclampf(float x, float minimum, float maximum) noexcept
 #endif
 }
 
+SPRAY_HOST_DEVICE
+SPRAY_INLINE float nan() noexcept
+{
+#ifdef __CUDA_ARCH__
+    return CUDART_NAN_F;
+#else
+    return std::numeric_limits<float>::quiet_NaN();
+#endif
+}
 
 SPRAY_HOST_DEVICE
 SPRAY_INLINE float inf() noexcept
